@@ -65,10 +65,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           magicLink
           passkey
           avatar
-          captcha={{
-            provider: "google-recaptcha-v3",
-            siteKey: "your-site-key",
-          }}
           uploadAvatar={(file) => {
             const formData = new FormData()
             formData.append("avatar", file)

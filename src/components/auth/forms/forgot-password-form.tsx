@@ -6,14 +6,19 @@ import { Loader2 } from "lucide-react"
 import { useContext, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { useCaptcha } from "../../../hooks/use-captcha"
 import { useIsHydrated } from "../../../hooks/use-hydrated"
-import type { AuthLocalization } from "../../../lib/auth-localization"
 import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { cn, getLocalizedError } from "../../../lib/utils"
-import { Captcha } from "../../captcha/captcha"
+import type { AuthLocalization } from "../../../localization/auth-localization"
 import { Button } from "../../ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
+} from "../../ui/form"
 import { Input } from "../../ui/input"
 import type { AuthFormClassNames } from "../auth-form"
 
@@ -33,7 +38,6 @@ export function ForgotPasswordForm({
     setIsSubmitting
 }: ForgotPasswordFormProps) {
     const isHydrated = useIsHydrated()
-    const { captchaRef, getCaptchaHeaders } = useCaptcha({ localization })
 
     const {
         authClient,
@@ -51,10 +55,10 @@ export function ForgotPasswordForm({
         email: z
             .string()
             .min(1, {
-                message: `${localization.email} ${localization.isRequired}`
+                message: `${localization.EMAIL} ${localization.IS_REQUIRED}`
             })
             .email({
-                message: `${localization.email} ${localization.isInvalid}`
+                message: `${localization.EMAIL} ${localization.IS_INVALID}`
             })
     })
 
@@ -73,23 +77,20 @@ export function ForgotPasswordForm({
 
     async function forgotPassword({ email }: z.infer<typeof formSchema>) {
         try {
-            const fetchOptions: BetterFetchOption = {
-                throw: true,
-                headers: await getCaptchaHeaders("/forget-password")
-            }
-
             await authClient.forgetPassword({
                 email,
-                redirectTo: `${baseURL}${basePath}/${viewPaths.resetPassword}`,
-                fetchOptions
+                redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
+                fetchOptions: { throw: true }
             })
 
             toast({
                 variant: "success",
-                message: localization.forgotPasswordEmail
+                message: localization.FORGOT_PASSWORD_EMAIL
             })
 
-            navigate(`${basePath}/${viewPaths.signIn}${window.location.search}`)
+            navigate(
+                `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
+            )
         } catch (error) {
             toast({
                 variant: "error",
@@ -111,14 +112,14 @@ export function ForgotPasswordForm({
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className={classNames?.label}>
-                                {localization.email}
+                                {localization.EMAIL}
                             </FormLabel>
 
                             <FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
-                                    placeholder={localization.emailPlaceholder}
+                                    placeholder={localization.EMAIL_PLACEHOLDER}
                                     disabled={isSubmitting}
                                     {...field}
                                 />
@@ -129,17 +130,19 @@ export function ForgotPasswordForm({
                     )}
                 />
 
-                <Captcha ref={captchaRef} localization={localization} action="/forget-password" />
-
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className={cn("w-full", classNames?.button, classNames?.primaryButton)}
+                    className={cn(
+                        "w-full",
+                        classNames?.button,
+                        classNames?.primaryButton
+                    )}
                 >
                     {isSubmitting ? (
                         <Loader2 className="animate-spin" />
                     ) : (
-                        localization.forgotPasswordAction
+                        localization.FORGOT_PASSWORD_ACTION
                     )}
                 </Button>
             </form>
