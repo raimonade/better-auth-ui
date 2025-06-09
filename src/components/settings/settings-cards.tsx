@@ -11,6 +11,7 @@ import { OrganizationInvitationsCard } from "../organization/organization-invita
 import { OrganizationMembersCard } from "../organization/organization-members-card"
 import { OrganizationSettingsCards } from "../organization/organization-settings-cards"
 import { OrganizationsCard } from "../organization/organizations-card"
+import { TeamsCard } from "../organization/teams-card"
 import { Button } from "../ui/button"
 import {
     Drawer,
@@ -50,7 +51,8 @@ export const settingsViews = [
     "API_KEYS",
     "ORGANIZATION",
     "ORGANIZATIONS",
-    "MEMBERS"
+    "MEMBERS",
+    "TEAMS"
 ] as const
 export type SettingsView = (typeof settingsViews)[number]
 
@@ -124,13 +126,21 @@ export function SettingsCards({
             view: "MEMBERS",
             label: localization.MEMBERS
         })
+
+        if (organization.teams?.enabled) {
+            organizationGroup.push({
+                view: "TEAMS",
+                label: localization.TEAMS
+            })
+        }
     }
 
     // Determine which group the current view belongs to
     const isPersonalView = personalGroup.some((item) => item.view === view)
     const isOrganizationView =
         organizationGroup.some((item) => item.view === view) ||
-        view === "MEMBERS"
+        view === "MEMBERS" ||
+        view === "TEAMS"
 
     // Show navigation for the current group
     const currentNavigationGroup = isOrganizationView
@@ -283,6 +293,15 @@ export function SettingsCards({
                     />
 
                     <OrganizationInvitationsCard
+                        classNames={classNames?.card}
+                        localization={localization}
+                    />
+                </div>
+            )}
+
+            {view === "TEAMS" && organization && (
+                <div className={cn("flex w-full flex-col", classNames?.cards)}>
+                    <TeamsCard
                         classNames={classNames?.card}
                         localization={localization}
                     />

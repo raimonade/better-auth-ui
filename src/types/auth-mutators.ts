@@ -10,4 +10,7 @@ export interface AuthMutators {
     setActiveSession: MutateFn<{ sessionToken: string }>
     updateUser: MutateFn
     unlinkAccount: MutateFn<{ providerId: string; accountId?: string }>
+    createTeam: MutateFn<{ name: string; organizationId?: string }>
+    updateTeam: MutateFn<{ teamId: string; data: { name: string }; organizationId?: string }>
+    removeTeam: MutateFn<{ teamId: string; organizationId?: string }>
 }

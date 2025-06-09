@@ -1,3 +1,5 @@
+import type { TeamOptions, TeamOptionsContext } from "./team-options"
+
 export type OrganizationLogoOptions = {
     /**
      * Upload a logo image and return the URL string
@@ -27,6 +29,11 @@ export type OrganizationOptions = {
      * @default []
      */
     customRoles?: Array<{ role: string; label: string }>
+    /**
+     * Teams configuration
+     * @default undefined
+     */
+    teams?: TeamOptions | boolean
 }
 
 export type OrganizationOptionsContext = {
@@ -40,4 +47,9 @@ export type OrganizationOptionsContext = {
      * @default []
      */
     customRoles: Array<{ role: string; label: string }>
+    /**
+     * Teams configuration
+     * @default undefined
+     */
+    teams?: TeamOptionsContext
 }

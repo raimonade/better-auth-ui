@@ -705,6 +705,94 @@ export const authLocalization = {
 
     /** @default "The slug does not match" */
     SLUG_DOES_NOT_MATCH: "The slug does not match",
+
+    /** @default "Teams" */
+    TEAMS: "Teams",
+
+    /** @default "Team" */
+    TEAM: "Team",
+
+    /** @default "Create Team" */
+    CREATE_TEAM: "Create Team",
+
+    /** @default "Team Name" */
+    TEAM_NAME: "Team Name",
+
+    /** @default "Development Team" */
+    TEAM_NAME_PLACEHOLDER: "Development Team",
+
+    /** @default "This is your team's visible name." */
+    TEAM_NAME_DESCRIPTION: "This is your team's visible name.",
+
+    /** @default "Please use 32 characters at maximum." */
+    TEAM_NAME_INSTRUCTIONS: "Please use 32 characters at maximum.",
+
+    /** @default "Team created successfully" */
+    CREATE_TEAM_SUCCESS: "Team created successfully",
+
+    /** @default "Manage teams within your organization." */
+    TEAMS_DESCRIPTION: "Manage teams within your organization.",
+
+    /** @default "Create teams to organize members within your organization." */
+    TEAMS_INSTRUCTIONS: "Create teams to organize members within your organization.",
+
+    /** @default "Update Team" */
+    UPDATE_TEAM: "Update Team",
+
+    /** @default "Update the name of this team." */
+    UPDATE_TEAM_DESCRIPTION: "Update the name of this team.",
+
+    /** @default "Team updated successfully" */
+    UPDATE_TEAM_SUCCESS: "Team updated successfully",
+
+    /** @default "Delete Team" */
+    DELETE_TEAM: "Delete Team",
+
+    /** @default "Are you sure you want to delete this team?" */
+    DELETE_TEAM_CONFIRM: "Are you sure you want to delete this team?",
+
+    /** @default "Permanently remove this team and all of its members. This action is not reversible." */
+    DELETE_TEAM_DESCRIPTION: "Permanently remove this team and all of its members. This action is not reversible.",
+
+    /** @default "Team deleted successfully" */
+    DELETE_TEAM_SUCCESS: "Team deleted successfully",
+
+    /** @default "Team Members" */
+    TEAM_MEMBERS: "Team Members",
+
+    /** @default "Manage members within this team." */
+    TEAM_MEMBERS_DESCRIPTION: "Manage members within this team.",
+
+    /** @default "Add members to this team." */
+    TEAM_MEMBERS_INSTRUCTIONS: "Add members to this team.",
+
+    /** @default "Add to Team" */
+    ADD_TO_TEAM: "Add to Team",
+
+    /** @default "Remove from Team" */
+    REMOVE_FROM_TEAM: "Remove from Team",
+
+    /** @default "Select a team" */
+    SELECT_TEAM: "Select a team",
+
+    /** @default "Select Team" */
+    SELECT_TEAM_LABEL: "Select Team",
+
+    /** @default "Are you sure you want to remove this member from the team?" */
+    REMOVE_TEAM_MEMBER_CONFIRM: "Are you sure you want to remove this member from the team?",
+
+    /** @default "Member removed from team successfully" */
+    REMOVE_TEAM_MEMBER_SUCCESS: "Member removed from team successfully",
+
+    /** @default "Member added to team successfully" */
+    ADD_TEAM_MEMBER_SUCCESS: "Member added to team successfully",
+
+    /** @default "Optional" */
+    OPTIONAL: "Optional",
+
+    /** @default "No team" */
+    NO_TEAM: "No team",
+
     ...BASE_ERROR_CODES,
     ...ADMIN_ERROR_CODES,
     ...ANONYMOUS_ERROR_CODES,

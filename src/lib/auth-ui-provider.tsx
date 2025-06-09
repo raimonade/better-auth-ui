@@ -671,10 +671,26 @@ export const AuthUIProvider = ({
             }
         }
 
+        let teams: OrganizationOptionsContext["teams"] | undefined
+
+        if (organizationProp.teams === true) {
+            teams = {
+                enabled: true,
+                allowRemovingAllTeams: true
+            }
+        } else if (organizationProp.teams) {
+            teams = {
+                enabled: organizationProp.teams.enabled,
+                maximumTeams: organizationProp.teams.maximumTeams,
+                allowRemovingAllTeams: organizationProp.teams.allowRemovingAllTeams ?? true
+            }
+        }
+
         return {
             ...organizationProp,
             logo,
-            customRoles: organizationProp.customRoles || []
+            customRoles: organizationProp.customRoles || [],
+            teams
         }
     }, [organizationProp])
 
@@ -714,7 +730,22 @@ export const AuthUIProvider = ({
                 authClient.unlinkAccount({
                     ...params,
                     fetchOptions: { throw: true }
-                })
+                }),
+            createTeam: (params) =>
+                authClient.organization.createTeam({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
+            updateTeam: (params) =>
+                authClient.organization.updateTeam({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
+            removeTeam: (params) =>
+                authClient.organization.removeTeam({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
         } as AuthMutators
     }, [authClient])
 
@@ -755,6 +786,12 @@ export const AuthUIProvider = ({
                     queryFn: () =>
                         authClient.organization.getInvitation(params),
                     cacheKey: `invitation:${JSON.stringify(params)}`
+                }),
+            useListTeams: (params) =>
+                useAuthData({
+                    queryFn: () =>
+                        authClient.organization.listTeams(params || {}),
+                    cacheKey: `listTeams:${JSON.stringify(params || {})}`
                 })
         } as AuthHooks
     }, [authClient])

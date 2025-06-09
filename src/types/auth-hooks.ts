@@ -3,6 +3,7 @@ import type { Invitation } from "better-auth/plugins/organization"
 import type { ApiKey } from "./api-key"
 import type { AuthClient, Session, User } from "./auth-client"
 import type { Refetch } from "./refetch"
+import type { Team } from "./team-options"
 
 type AuthHook<T> = {
     isPending: boolean
@@ -37,5 +38,8 @@ export type AuthHooks = {
             organizationLogo?: string
         }
     >
+    useListTeams: (
+        params?: Parameters<AuthClient["organization"]["listTeams"]>[0]
+    ) => AuthHook<Team[]>
     useIsRestoring?: () => boolean
 }

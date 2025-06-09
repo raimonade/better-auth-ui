@@ -27,6 +27,8 @@ export const authViewPaths = {
     SETTINGS: "settings",
     /** @default "sign-in" */
     SIGN_IN: "sign-in",
+    /** @default "teams" */
+    TEAMS: "teams",
     /** @default "sign-out" */
     SIGN_OUT: "sign-out",
     /** @default "sign-up" */
