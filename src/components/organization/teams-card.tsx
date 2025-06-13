@@ -9,7 +9,7 @@ import { SettingsCard } from "../settings/shared/settings-card"
 import type { SettingsCardProps } from "../settings/shared/settings-card"
 import { CardContent } from "../ui/card"
 import { CreateTeamDialog } from "./create-team-dialog"
-import { TeamCell } from "./team-cell"
+import { TeamCellWithMembers } from "./team-cell-with-members"
 
 export function TeamsCard({
     className,
@@ -27,11 +27,12 @@ export function TeamsCard({
 
     const isHydrated = useIsHydrated()
     const { data: teams, isPending: teamsPending } = useListTeams()
-    const { data: hasPermission, isPending: permissionPending } = useHasPermission({
-        permissions: {
-            team: ["create"]
-        }
-    })
+    const { data: hasPermission, isPending: permissionPending } =
+        useHasPermission({
+            permissions: {
+                team: ["create"]
+            }
+        })
 
     const isPending = !isHydrated || teamsPending || permissionPending
 
@@ -61,7 +62,7 @@ export function TeamsCard({
                         className={cn("grid gap-4", classNames?.content)}
                     >
                         {teams?.map((team) => (
-                            <TeamCell
+                            <TeamCellWithMembers
                                 key={team.id}
                                 classNames={classNames}
                                 team={team}
@@ -80,4 +81,4 @@ export function TeamsCard({
             />
         </>
     )
-} 
+}

@@ -14,7 +14,8 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
+    DropdownMenuShortcut
 } from "../ui/dropdown-menu"
 import { DeleteTeamDialog } from "./delete-team-dialog"
 import { UpdateTeamDialog } from "./update-team-dialog"
@@ -24,19 +25,23 @@ export interface TeamCellProps {
     classNames?: SettingsCardClassNames
     team: Team
     localization?: AuthLocalization
+    onTeamSelect?: () => void
+    isSelected?: boolean
 }
 
 export function TeamCell({
     className,
     classNames,
     team,
-    localization: localizationProp
+    localization: localizationProp,
+    onTeamSelect,
+    isSelected = false
 }: TeamCellProps) {
     const {
         hooks: { useHasPermission },
         localization: contextLocalization
     } = useContext(AuthUIContext)
-    
+
     const localization = { ...contextLocalization, ...localizationProp }
 
     const { data: hasUpdatePermission } = useHasPermission({
@@ -54,16 +59,19 @@ export function TeamCell({
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [updateDialogOpen, setUpdateDialogOpen] = useState(false)
 
-    const canManage = hasUpdatePermission?.success || hasDeletePermission?.success
+    const canManage =
+        hasUpdatePermission?.success || hasDeletePermission?.success
 
     return (
         <>
             <Card
                 className={cn(
-                    "flex-row items-center p-4",
+                    "flex-row items-center p-4 cursor-pointer transition-colors",
+                    isSelected && "ring-2 ring-primary bg-muted/50",
                     className,
                     classNames?.cell
                 )}
+                onClick={onTeamSelect}
             >
                 <div className="flex items-center gap-3 flex-1">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
@@ -101,8 +109,15 @@ export function TeamCell({
                                 <DropdownMenuItem
                                     onClick={() => setUpdateDialogOpen(true)}
                                 >
-                                    <PencilIcon className={classNames?.icon} />
                                     {localization?.UPDATE_TEAM}
+                                    <DropdownMenuShortcut>
+                                        <PencilIcon
+                                            className={cn(
+                                                "size-3.5 text-neutral-200",
+                                                classNames?.icon
+                                            )}
+                                        />
+                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                             )}
 
@@ -111,8 +126,15 @@ export function TeamCell({
                                     onClick={() => setDeleteDialogOpen(true)}
                                     variant="destructive"
                                 >
-                                    <Trash2Icon className={classNames?.icon} />
                                     {localization?.DELETE_TEAM}
+                                    <DropdownMenuShortcut>
+                                        <Trash2Icon
+                                            className={cn(
+                                                "size-3.5 text-neutral-200",
+                                                classNames?.icon
+                                            )}
+                                        />
+                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                             )}
                         </DropdownMenuContent>
@@ -137,4 +159,4 @@ export function TeamCell({
             />
         </>
     )
-} 
+}

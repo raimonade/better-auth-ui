@@ -682,7 +682,8 @@ export const AuthUIProvider = ({
             teams = {
                 enabled: organizationProp.teams.enabled,
                 maximumTeams: organizationProp.teams.maximumTeams,
-                allowRemovingAllTeams: organizationProp.teams.allowRemovingAllTeams ?? true
+                allowRemovingAllTeams:
+                    organizationProp.teams.allowRemovingAllTeams ?? true
             }
         }
 
@@ -745,7 +746,7 @@ export const AuthUIProvider = ({
                 authClient.organization.removeTeam({
                     ...params,
                     fetchOptions: { throw: true }
-                }),
+                })
         } as AuthMutators
     }, [authClient])
 
@@ -754,46 +755,56 @@ export const AuthUIProvider = ({
             useSession: authClient.useSession,
             useListAccounts: () =>
                 useAuthData({
-                    queryFn: authClient.listAccounts,
+                    queryFn: () => authClient.listAccounts(),
                     cacheKey: "listAccounts"
                 }),
             useListDeviceSessions: () =>
                 useAuthData({
-                    queryFn: authClient.multiSession.listDeviceSessions,
+                    queryFn: () => authClient.multiSession.listDeviceSessions(),
                     cacheKey: "listDeviceSessions"
                 }),
             useListSessions: () =>
                 useAuthData({
-                    queryFn: authClient.listSessions,
+                    queryFn: () => authClient.listSessions(),
                     cacheKey: "listSessions"
                 }),
             useListPasskeys: authClient.useListPasskeys,
             useListApiKeys: () =>
                 useAuthData({
-                    queryFn: authClient.apiKey.list,
+                    queryFn: () => authClient.apiKey.list(),
                     cacheKey: "listApiKeys"
                 }),
             useActiveOrganization: authClient.useActiveOrganization,
             useListOrganizations: authClient.useListOrganizations,
-            useHasPermission: (params) =>
+            useHasPermission: (
+                params: Parameters<
+                    typeof authClient.organization.hasPermission
+                >[0]
+            ) =>
                 useAuthData({
                     queryFn: () =>
                         authClient.organization.hasPermission(params),
                     cacheKey: `hasPermission:${JSON.stringify(params)}`
                 }),
-            useInvitation: (params) =>
+            useInvitation: (
+                params: Parameters<
+                    typeof authClient.organization.getInvitation
+                >[0]
+            ) =>
                 useAuthData({
                     queryFn: () =>
                         authClient.organization.getInvitation(params),
                     cacheKey: `invitation:${JSON.stringify(params)}`
                 }),
-            useListTeams: (params) =>
+            useListTeams: (
+                params?: Parameters<typeof authClient.organization.listTeams>[0]
+            ) =>
                 useAuthData({
                     queryFn: () =>
                         authClient.organization.listTeams(params || {}),
                     cacheKey: `listTeams:${JSON.stringify(params || {})}`
                 })
-        } as AuthHooks
+        } as unknown as AuthHooks
     }, [authClient])
 
     const viewPaths = useMemo(() => {

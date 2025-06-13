@@ -43,8 +43,17 @@
             }
         }
     },
-    "files": ["src", "dist"],
-    "keywords": ["typescript", "react", "better-auth", "shadcn", "nextjs"],
+    "files": [
+        "src",
+        "dist"
+    ],
+    "keywords": [
+        "typescript",
+        "react",
+        "better-auth",
+        "shadcn",
+        "nextjs"
+    ],
     "author": "daveycodez",
     "license": "MIT",
     "devDependencies": {
@@ -63,7 +72,7 @@
         "@types/node": "^22.15.29",
         "@types/react": "^19.1.6",
         "@types/react-dom": "^19.1.5",
-        "better-auth": "^1.2.8",
+        "better-auth": "^1.2.9",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "esbuild-plugin-preserve-directives": "^0.0.11",

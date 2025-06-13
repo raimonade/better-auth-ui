@@ -37,6 +37,7 @@ import {
     type OrganizationViewClassNames
 } from "./organization-view"
 import { PersonalAccountView } from "./personal-account-view"
+import { DropdownMenuShortcut } from "../ui/dropdown-menu"
 
 export interface OrganizationSwitcherClassNames {
     base?: string
@@ -366,16 +367,20 @@ export function OrganizationSwitcher({
                             className={cn(classNames?.content?.menuItem)}
                             onClick={() => setIsCreateOrgDialogOpen(true)}
                         >
-                            <PlusCircleIcon />
                             {localization.CREATE_ORGANIZATION}
+                            <DropdownMenuShortcut>
+                                <PlusCircleIcon className="size-3.5 text-neutral-200" />
+                            </DropdownMenuShortcut>
                         </DropdownMenuItem>
                     ) : (
                         <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
                             <DropdownMenuItem
                                 className={cn(classNames?.content?.menuItem)}
                             >
-                                <LogInIcon />
                                 {localization.SIGN_IN}
+                                <DropdownMenuShortcut>
+                                    <LogInIcon className="size-3.5 text-neutral-200" />
+                                </DropdownMenuShortcut>
                             </DropdownMenuItem>
                         </Link>
                     )}

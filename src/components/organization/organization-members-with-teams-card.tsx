@@ -1,8 +1,6 @@
 "use client"
 
 import { useContext, useEffect, useState } from "react"
-import type { User } from "better-auth"
-import type { Member } from "better-auth/plugins/organization"
 
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import { cn } from "../../lib/utils"
@@ -12,7 +10,7 @@ import { CardContent } from "../ui/card"
 import { InviteMemberDialog } from "./invite-member-dialog"
 import { MemberCell } from "./member-cell"
 
-export function OrganizationMembersCard({
+export function OrganizationMembersWithTeamsCard({
     className,
     classNames,
     localization: localizationProp,
@@ -20,10 +18,12 @@ export function OrganizationMembersCard({
 }: SettingsCardProps) {
     const {
         basePath,
-        hooks: { useActiveOrganization },
+        hooks: { useActiveOrganization, useHasPermission },
         localization: contextLocalization,
         replace,
-        viewPaths
+        viewPaths,
+        authClient,
+        toast
     } = useContext(AuthUIContext)
 
     const localization = { ...contextLocalization, ...localizationProp }
@@ -34,57 +34,6 @@ export function OrganizationMembersCard({
         isRefetching: organizationFetching
     } = useActiveOrganization()
 
-    useEffect(() => {
-        if (organizationPending || organizationFetching) return
-        if (!activeOrganization) replace(`${basePath}/${viewPaths.SETTINGS}`)
-    }, [
-        activeOrganization,
-        organizationPending,
-        organizationFetching,
-        basePath,
-        replace,
-        viewPaths
-    ])
-
-    if (!activeOrganization) {
-        return (
-            <SettingsCard
-                className={className}
-                classNames={classNames}
-                title={localization.MEMBERS}
-                description={localization.MEMBERS_DESCRIPTION}
-                instructions={localization.MEMBERS_INSTRUCTIONS}
-                actionLabel={localization.INVITE_MEMBER}
-                isPending
-                {...props}
-            />
-        )
-    }
-
-    return (
-        <OrganizationMembersContent
-            className={className}
-            classNames={classNames}
-            localization={localization}
-            {...props}
-        />
-    )
-}
-
-function OrganizationMembersContent({
-    className,
-    classNames,
-    localization: localizationProp,
-    ...props
-}: SettingsCardProps) {
-    const {
-        hooks: { useActiveOrganization, useHasPermission },
-        localization: contextLocalization
-    } = useContext(AuthUIContext)
-
-    const localization = { ...contextLocalization, ...localizationProp }
-
-    const { data: activeOrganization } = useActiveOrganization()
     const { data: hasPermissionInvite, isPending: isPendingInvite } =
         useHasPermission({
             permissions: {
@@ -101,11 +50,37 @@ function OrganizationMembersContent({
         }
     })
 
+    useEffect(() => {
+        if (organizationPending || organizationFetching) return
+        if (!activeOrganization) replace(`${basePath}/${viewPaths.SETTINGS}`)
+    }, [
+        activeOrganization,
+        organizationPending,
+        organizationFetching,
+        basePath,
+        replace,
+        viewPaths
+    ])
+
     const isPending = isPendingInvite || isPendingUpdateMember
 
     const members = activeOrganization?.members
-
     const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
+
+    if (!activeOrganization) {
+        return (
+            <SettingsCard
+                className={className}
+                classNames={classNames}
+                title={localization.MEMBERS}
+                description={localization.MEMBERS_DESCRIPTION}
+                instructions={localization.MEMBERS_INSTRUCTIONS}
+                actionLabel={localization.INVITE_MEMBER}
+                isPending
+                {...props}
+            />
+        )
+    }
 
     return (
         <>
@@ -126,14 +101,12 @@ function OrganizationMembersContent({
                         className={cn("grid gap-4", classNames?.content)}
                     >
                         {members
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             .sort(
-                                (a: any, b: any) =>
-                                    a.createdAt.getTime() -
-                                    b.createdAt.getTime()
+                                (a, b) =>
+                                    new Date(a.createdAt).getTime() -
+                                    new Date(b.createdAt).getTime()
                             )
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            .map((member: any) => (
+                            .map((member) => (
                                 <MemberCell
                                     key={member.id}
                                     classNames={classNames}

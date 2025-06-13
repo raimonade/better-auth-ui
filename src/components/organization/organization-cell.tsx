@@ -18,6 +18,7 @@ import {
 } from "../ui/dropdown-menu"
 import { LeaveOrganizationDialog } from "./leave-organization-dialog"
 import { OrganizationView } from "./organization-view"
+import { DropdownMenuShortcut } from "../ui/dropdown-menu"
 
 export interface OrganizationCellProps {
     className?: string
@@ -125,18 +126,30 @@ export function OrganizationCell({
                             onClick={handleManageOrganization}
                             disabled={isManagingOrganization}
                         >
-                            <SettingsIcon className={classNames?.icon} />
-
                             {localization.MANAGE_ORGANIZATION}
+                            <DropdownMenuShortcut>
+                                <SettingsIcon
+                                    className={cn(
+                                        "size-3.5 text-neutral-200",
+                                        classNames?.icon
+                                    )}
+                                />
+                            </DropdownMenuShortcut>
                         </DropdownMenuItem>
 
                         <DropdownMenuItem
                             onClick={() => setIsLeaveDialogOpen(true)}
                             variant="destructive"
                         >
-                            <LogOutIcon className={classNames?.icon} />
-
                             {localization.LEAVE_ORGANIZATION}
+                            <DropdownMenuShortcut>
+                                <LogOutIcon
+                                    className={cn(
+                                        "size-3.5 text-neutral-200",
+                                        classNames?.icon
+                                    )}
+                                />
+                            </DropdownMenuShortcut>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

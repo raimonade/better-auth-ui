@@ -37,6 +37,7 @@ import {
 } from "../ui/form"
 import { Input } from "../ui/input"
 import { OrganizationLogo } from "./organization-logo"
+import { DropdownMenuShortcut } from "../ui/dropdown-menu"
 
 export interface CreateOrganizationDialogProps
     extends ComponentProps<typeof Dialog> {
@@ -256,10 +257,12 @@ export function CreateOrganizationDialog({
                                                         onClick={openFileDialog}
                                                         disabled={uploadingLogo}
                                                     >
-                                                        <UploadCloudIcon />
                                                         {
                                                             localization.UPLOAD_LOGO
                                                         }
+                                                        <DropdownMenuShortcut>
+                                                            <UploadCloudIcon className="size-3.5 text-neutral-200" />
+                                                        </DropdownMenuShortcut>
                                                     </DropdownMenuItem>
 
                                                     {logo && (
@@ -270,10 +273,12 @@ export function CreateOrganizationDialog({
                                                             }
                                                             variant="destructive"
                                                         >
-                                                            <Trash2Icon />
                                                             {
                                                                 localization.DELETE_LOGO
                                                             }
+                                                            <DropdownMenuShortcut>
+                                                                <Trash2Icon className="size-3.5 text-neutral-200" />
+                                                            </DropdownMenuShortcut>
                                                         </DropdownMenuItem>
                                                     )}
                                                 </DropdownMenuContent>

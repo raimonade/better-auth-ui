@@ -19,6 +19,7 @@ import {
 } from "../../ui/dropdown-menu"
 import { UserView } from "../../user-view"
 import type { SettingsCardClassNames } from "../shared/settings-card"
+import { DropdownMenuShortcut } from "../../ui/dropdown-menu"
 
 export interface AccountCellProps {
     className?: string
@@ -117,9 +118,15 @@ export function AccountCell({
                 <DropdownMenuContent>
                     {!isCurrentSession && (
                         <DropdownMenuItem onClick={handleSetActiveSession}>
-                            <RepeatIcon className={classNames?.icon} />
-
                             {localization.SWITCH_ACCOUNT}
+                            <DropdownMenuShortcut>
+                                <RepeatIcon
+                                    className={cn(
+                                        "size-3.5 text-neutral-200",
+                                        classNames?.icon
+                                    )}
+                                />
+                            </DropdownMenuShortcut>
                         </DropdownMenuItem>
                     )}
 
@@ -133,11 +140,17 @@ export function AccountCell({
                             handleRevoke()
                         }}
                     >
-                        <LogOutIcon className={classNames?.icon} />
-
                         {isCurrentSession
                             ? localization.SIGN_OUT
                             : localization.REVOKE}
+                        <DropdownMenuShortcut>
+                            <LogOutIcon
+                                className={cn(
+                                    "size-3.5 text-neutral-200",
+                                    classNames?.icon
+                                )}
+                            />
+                        </DropdownMenuShortcut>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

@@ -40,6 +40,7 @@ import {
 import { Input } from "../../ui/input"
 import { UserAvatar } from "../../user-avatar"
 import type { AuthFormClassNames } from "../auth-form"
+import { DropdownMenuShortcut } from "../../ui/dropdown-menu"
 
 export interface SignUpFormProps {
     className?: string
@@ -343,7 +344,6 @@ export function SignUpForm({
                 }
             }
 
-
             const data = await authClient.signUp.email({
                 email,
                 password,
@@ -453,8 +453,10 @@ export function SignUpForm({
                                                     onClick={openFileDialog}
                                                     disabled={uploadingAvatar}
                                                 >
-                                                    <UploadCloudIcon />
                                                     {localization.UPLOAD_AVATAR}
+                                                    <DropdownMenuShortcut>
+                                                        <UploadCloudIcon className="size-3.5 text-neutral-200" />
+                                                    </DropdownMenuShortcut>
                                                 </DropdownMenuItem>
 
                                                 {avatarImage && (
@@ -467,10 +469,12 @@ export function SignUpForm({
                                                         }
                                                         variant="destructive"
                                                     >
-                                                        <Trash2Icon />
                                                         {
                                                             localization.DELETE_AVATAR
                                                         }
+                                                        <DropdownMenuShortcut>
+                                                            <Trash2Icon className="size-3.5 text-neutral-200" />
+                                                        </DropdownMenuShortcut>
                                                     </DropdownMenuItem>
                                                 )}
                                             </DropdownMenuContent>
@@ -632,8 +636,10 @@ export function SignUpForm({
                 )}
 
                 {signUpFields
-                    ?.filter((field) => field !== "name" && field !== "image")
-                    .map((field) => {
+                    ?.filter(
+                        (field: string) => field !== "name" && field !== "image"
+                    )
+                    .map((field: string) => {
                         const additionalField = additionalFields?.[field]
                         if (!additionalField) {
                             console.error(`Additional field ${field} not found`)

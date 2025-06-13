@@ -68,6 +68,11 @@ export interface UserButtonProps {
     customTrigger?: ReactNode
     disableDefaultLinks?: boolean
     /**
+     * Whether to restrict multi-session/add account functionality to admin+ users only
+     * @default false
+     */
+    restrictMultiSessionToAdmins?: boolean
+    /**
      * @default authLocalization
      * @remarks `AuthLocalization`
      */
@@ -88,6 +93,7 @@ type DeviceSession = {
  * - Provides dropdown menu with authentication options (sign in/out, settings, etc.)
  * - Supports multi-session functionality for switching between accounts
  * - Can be customized with additional links and styling options
+ * - Supports role-based access control for multi-session functionality (admin+ only when enabled)
  */
 export function UserButton({
     className,
@@ -96,13 +102,14 @@ export function UserButton({
     customTrigger,
     additionalLinks,
     disableDefaultLinks,
+    restrictMultiSessionToAdmins = false,
     localization: propLocalization,
     size,
     ...props
 }: UserButtonProps & ComponentProps<typeof Button>) {
     const {
         basePath,
-        hooks: { useSession, useListDeviceSessions },
+        hooks: { useSession, useListDeviceSessions, useActiveOrganization },
         mutators: { setActiveSession },
         localization: contextLocalization,
         multiSession,
@@ -129,10 +136,21 @@ export function UserButton({
     }
 
     const { data: sessionData, isPending: sessionPending } = useSession()
+    const { data: activeOrganization } = useActiveOrganization()
     const user = sessionData?.user
     const [activeSessionPending, setActiveSessionPending] = useState(false)
 
     const isPending = sessionPending || activeSessionPending
+
+    // Check if current user has admin+ permissions for multi-session functionality
+    const userRole = activeOrganization?.members?.find(
+        (member) => member.userId === user?.id
+    )?.role
+
+    const canUseMultiSession =
+        !restrictMultiSessionToAdmins ||
+        userRole === "owner" ||
+        userRole === "admin"
 
     const switchAccount = useCallback(
         async (sessionToken: string) => {
@@ -271,9 +289,10 @@ export function UserButton({
                             <DropdownMenuItem
                                 className={classNames?.content?.menuItem}
                             >
-                                <LogInIcon />
-
                                 {localization.SIGN_IN}
+                                <DropdownMenuShortcut>
+                                    <LogInIcon className="size-3.5 text-neutral-200" />
+                                </DropdownMenuShortcut>
                             </DropdownMenuItem>
                         </Link>
 
@@ -282,15 +301,29 @@ export function UserButton({
                                 <DropdownMenuItem
                                     className={classNames?.content?.menuItem}
                                 >
-                                    <UserRoundPlus />
-
                                     {localization.SIGN_UP}
+                                    <DropdownMenuShortcut>
+                                        <UserRoundPlus className="size-3.5 text-neutral-200" />
+                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                             </Link>
                         )}
                     </>
                 ) : (
                     <>
+                        {user && multiSession && canUseMultiSession && (
+                            <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
+                                <DropdownMenuItem
+                                    className={classNames?.content?.menuItem}
+                                >
+                                    {localization.ADD_ACCOUNT}
+                                    <DropdownMenuShortcut>
+                                        <PlusCircleIcon className="size-3.5 text-neutral-200" />
+                                    </DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                            </Link>
+                        )}
+
                         {!disableDefaultLinks && settings && (
                             <Link
                                 href={
@@ -322,7 +355,7 @@ export function UserButton({
                     </>
                 )}
 
-                {user && multiSession && (
+                {user && multiSession && canUseMultiSession && (
                     <>
                         <DropdownMenuSeparator
                             className={classNames?.content?.separator}
@@ -376,17 +409,6 @@ export function UserButton({
                                     />
                                 </Fragment>
                             ))}
-
-                        <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
-                            <DropdownMenuItem
-                                className={classNames?.content?.menuItem}
-                            >
-                                {localization.ADD_ACCOUNT}
-                                <DropdownMenuShortcut>
-                                    <PlusCircleIcon className="size-3.5 text-neutral-200" />
-                                </DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                        </Link>
                     </>
                 )}
             </DropdownMenuContent>

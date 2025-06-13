@@ -734,7 +734,8 @@ export const authLocalization = {
     TEAMS_DESCRIPTION: "Manage teams within your organization.",
 
     /** @default "Create teams to organize members within your organization." */
-    TEAMS_INSTRUCTIONS: "Create teams to organize members within your organization.",
+    TEAMS_INSTRUCTIONS:
+        "Create teams to organize members within your organization.",
 
     /** @default "Update Team" */
     UPDATE_TEAM: "Update Team",
@@ -752,7 +753,8 @@ export const authLocalization = {
     DELETE_TEAM_CONFIRM: "Are you sure you want to delete this team?",
 
     /** @default "Permanently remove this team and all of its members. This action is not reversible." */
-    DELETE_TEAM_DESCRIPTION: "Permanently remove this team and all of its members. This action is not reversible.",
+    DELETE_TEAM_DESCRIPTION:
+        "Permanently remove this team and all of its members. This action is not reversible.",
 
     /** @default "Team deleted successfully" */
     DELETE_TEAM_SUCCESS: "Team deleted successfully",
@@ -779,7 +781,8 @@ export const authLocalization = {
     SELECT_TEAM_LABEL: "Select Team",
 
     /** @default "Are you sure you want to remove this member from the team?" */
-    REMOVE_TEAM_MEMBER_CONFIRM: "Are you sure you want to remove this member from the team?",
+    REMOVE_TEAM_MEMBER_CONFIRM:
+        "Are you sure you want to remove this member from the team?",
 
     /** @default "Member removed from team successfully" */
     REMOVE_TEAM_MEMBER_SUCCESS: "Member removed from team successfully",
@@ -792,6 +795,79 @@ export const authLocalization = {
 
     /** @default "No team" */
     NO_TEAM: "No team",
+
+    /** @default "Enter email address" */
+    ENTER_EMAIL_ADDRESS: "Enter email address",
+
+    /** @default "Email Address" */
+    EMAIL_ADDRESS: "Email Address",
+
+    /** @default "Invitation sent successfully" */
+    INVITATION_SENT_SUCCESSFULLY: "Invitation sent successfully",
+
+    /** @default "Failed to send invitation" */
+    FAILED_TO_SEND_INVITATION: "Failed to send invitation",
+
+    /** @default "Member removed successfully" */
+    MEMBER_REMOVED_SUCCESSFULLY: "Member removed successfully",
+
+    /** @default "Failed to remove member" */
+    FAILED_TO_REMOVE_MEMBER: "Failed to remove member",
+
+    /** @default "Invite Member to Team" */
+    INVITE_MEMBER_TO_TEAM: "Invite Member to Team",
+
+    /** @default "Remove from Organization" */
+    REMOVE_FROM_ORGANIZATION: "Remove from Organization",
+
+    /** @default "Sending" */
+    SENDING: "Sending",
+
+    /** @default "Search members..." */
+    SEARCH_MEMBERS: "Search members...",
+
+    /** @default "Search users..." */
+    SEARCH_USERS: "Search users...",
+
+    /** @default "Add to Organization" */
+    ADD_TO_ORGANIZATION: "Add to Organization",
+
+    /** @default "Move to Team" */
+    MOVE_TO_TEAM: "Move to Team",
+
+    /** @default "Move to Organization" */
+    MOVE_TO_ORGANIZATION: "Move to Organization",
+
+    /** @default "Select Organization" */
+    SELECT_ORGANIZATION: "Select Organization",
+
+    /** @default "Member moved successfully" */
+    MEMBER_MOVED_SUCCESSFULLY: "Member moved successfully",
+
+    /** @default "Failed to move member" */
+    FAILED_TO_MOVE_MEMBER: "Failed to move member",
+
+    /** @default "Add Member" */
+    ADD_MEMBER: "Add Member",
+
+    /** @default "Search and add existing members to this team" */
+    ADD_MEMBER_TO_TEAM_DESCRIPTION:
+        "Search and add existing members to this team",
+
+    /** @default "Search and add users to this organization" */
+    ADD_MEMBER_TO_ORG_DESCRIPTION: "Search and add users to this organization",
+
+    /** @default "No members found" */
+    NO_MEMBERS_FOUND: "No members found",
+
+    /** @default "No users found" */
+    NO_USERS_FOUND: "No users found",
+
+    /** @default "Available Members" */
+    AVAILABLE_MEMBERS: "Available Members",
+
+    /** @default "Available Users" */
+    AVAILABLE_USERS: "Available Users",
 
     ...BASE_ERROR_CODES,
     ...ADMIN_ERROR_CODES,

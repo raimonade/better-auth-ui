@@ -19,6 +19,7 @@ import {
     DropdownMenuTrigger
 } from "../ui/dropdown-menu"
 import { OrganizationLogo } from "./organization-logo"
+import { DropdownMenuShortcut } from "../ui/dropdown-menu"
 
 export interface OrganizationLogoCardProps extends ComponentProps<typeof Card> {
     className?: string
@@ -271,8 +272,10 @@ function OrganizationLogoForm({
                             onClick={openFileDialog}
                             disabled={loading || !hasPermission?.success}
                         >
-                            <UploadCloudIcon />
                             {localization.UPLOAD_LOGO}
+                            <DropdownMenuShortcut>
+                                <UploadCloudIcon className="size-3.5 text-neutral-200" />
+                            </DropdownMenuShortcut>
                         </DropdownMenuItem>
                         {activeOrganization?.logo && (
                             <DropdownMenuItem
@@ -280,8 +283,10 @@ function OrganizationLogoForm({
                                 disabled={loading || !hasPermission?.success}
                                 variant="destructive"
                             >
-                                <Trash2Icon />
                                 {localization.DELETE_LOGO}
+                                <DropdownMenuShortcut>
+                                    <Trash2Icon className="size-3.5 text-neutral-200" />
+                                </DropdownMenuShortcut>
                             </DropdownMenuItem>
                         )}
                     </DropdownMenuContent>

@@ -19,6 +19,7 @@ import { UserAvatar } from "../../user-avatar"
 import type { SettingsCardClassNames } from "../shared/settings-card"
 import { SettingsCardFooter } from "../shared/settings-card-footer"
 import { SettingsCardHeader } from "../shared/settings-card-header"
+import { DropdownMenuShortcut } from "../../ui/dropdown-menu"
 
 export interface UpdateAvatarCardProps extends ComponentProps<typeof Card> {
     className?: string
@@ -164,8 +165,10 @@ export function UpdateAvatarCard({
                             onClick={openFileDialog}
                             disabled={loading}
                         >
-                            <UploadCloudIcon />
                             {localization.UPLOAD_AVATAR}
+                            <DropdownMenuShortcut>
+                                <UploadCloudIcon className="size-3.5 text-neutral-200" />
+                            </DropdownMenuShortcut>
                         </DropdownMenuItem>
                         {sessionData?.user.image && (
                             <DropdownMenuItem
@@ -173,8 +176,10 @@ export function UpdateAvatarCard({
                                 disabled={loading}
                                 variant="destructive"
                             >
-                                <Trash2Icon />
                                 {localization.DELETE_AVATAR}
+                                <DropdownMenuShortcut>
+                                    <Trash2Icon className="size-3.5 text-neutral-200" />
+                                </DropdownMenuShortcut>
                             </DropdownMenuItem>
                         )}
                     </DropdownMenuContent>

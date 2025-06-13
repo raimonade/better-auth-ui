@@ -17,6 +17,7 @@ import {
     DropdownMenuTrigger
 } from "../ui/dropdown-menu"
 import { UserAvatar } from "../user-avatar"
+import { DropdownMenuShortcut } from "../ui/dropdown-menu"
 
 export interface InvitationCellProps {
     className?: string
@@ -136,8 +137,15 @@ export function InvitationCell({
                         disabled={isLoading}
                         variant="destructive"
                     >
-                        <XIcon className={classNames?.icon} />
                         {localization.CANCEL_INVITATION}
+                        <DropdownMenuShortcut>
+                            <XIcon
+                                className={cn(
+                                    "size-3.5 text-neutral-200",
+                                    classNames?.icon
+                                )}
+                            />
+                        </DropdownMenuShortcut>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

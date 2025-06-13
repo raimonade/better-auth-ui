@@ -94,19 +94,23 @@ export function InviteMemberDialog({
         defaultValues: {
             email: "",
             role: "member",
-            teamId: ""
+            teamId: "no-team"
         }
     })
 
     const isSubmitting = form.formState.isSubmitting
 
-    async function onSubmit({ email, role, teamId }: z.infer<typeof formSchema>) {
+    async function onSubmit({
+        email,
+        role,
+        teamId
+    }: z.infer<typeof formSchema>) {
         try {
             await authClient.organization.inviteMember({
                 email,
                 role: role as (typeof builtInRoles)[number]["role"],
                 organizationId: activeOrganization?.id,
-                teamId: teamId || undefined,
+                teamId: teamId === "no-team" ? undefined : teamId || undefined,
                 fetchOptions: { throw: true }
             })
 
@@ -215,46 +219,59 @@ export function InviteMemberDialog({
                             )}
                         />
 
-                        {organization?.teams?.enabled && teams && teams.length > 0 && (
-                            <FormField
-                                control={form.control}
-                                name="teamId"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className={classNames?.label}>
-                                            {localization.SELECT_TEAM_LABEL} ({localization.OPTIONAL || "Optional"})
-                                        </FormLabel>
+                        {organization?.teams?.enabled &&
+                            teams &&
+                            teams.length > 0 && (
+                                <FormField
+                                    control={form.control}
+                                    name="teamId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel
+                                                className={classNames?.label}
+                                            >
+                                                {localization.SELECT_TEAM_LABEL}{" "}
+                                                (
+                                                {localization.OPTIONAL ||
+                                                    "Optional"}
+                                                )
+                                            </FormLabel>
 
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            value={field.value}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={localization.SELECT_TEAM} />
-                                                </SelectTrigger>
-                                            </FormControl>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue
+                                                            placeholder={
+                                                                localization.SELECT_TEAM
+                                                            }
+                                                        />
+                                                    </SelectTrigger>
+                                                </FormControl>
 
-                                            <SelectContent>
-                                                <SelectItem value="">
-                                                    {localization.NO_TEAM || "No team"}
-                                                </SelectItem>
-                                                {teams.map((team) => (
-                                                    <SelectItem
-                                                        key={team.id}
-                                                        value={team.id}
-                                                    >
-                                                        {team.name}
+                                                <SelectContent>
+                                                    <SelectItem value="no-team">
+                                                        {localization.NO_TEAM ||
+                                                            "No team"}
                                                     </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                                    {teams.map((team) => (
+                                                        <SelectItem
+                                                            key={team.id}
+                                                            value={team.id}
+                                                        >
+                                                            {team.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
 
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
 
                         <DialogFooter className={classNames?.dialog?.footer}>
                             <Button

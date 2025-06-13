@@ -59,6 +59,27 @@ export default function Example() {
 }
 ```
 
+### Role-Based Multi-Session Access Control
+
+You can restrict multi-session functionality (account switching and adding accounts) to admin+ users only by setting the `restrictMultiSessionToAdmins` prop to `true`. This is useful in organization contexts where you want to limit multi-session capabilities to administrators.
+
+```tsx
+import { UserButton } from "@daveyplate/better-auth-ui";
+
+export default function Example() {
+  return (
+    <UserButton 
+      restrictMultiSessionToAdmins={true}
+    />
+  )
+}
+```
+
+When enabled:
+- **Organization owners and admins**: Can see and use multi-session features (switch accounts, add accounts)
+- **Regular members**: Multi-session options are hidden from the dropdown menu
+- **Users not in an organization**: Multi-session features remain available (no restriction)
+
 ### Styling
 
 You can fully customize the appearance of the UserButton component with [`UserButtonClassNames`](/api-reference/user-button-class-names) using the `classNames` prop.

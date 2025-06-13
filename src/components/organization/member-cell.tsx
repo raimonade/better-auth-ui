@@ -20,6 +20,7 @@ import {
 import { UserView } from "../user-view"
 import { RemoveMemberDialog } from "./remove-member-dialog"
 import { UpdateMemberRoleDialog } from "./update-member-role-dialog"
+import { DropdownMenuShortcut } from "../ui/dropdown-menu"
 
 export interface MemberCellProps {
     className?: string
@@ -38,13 +39,14 @@ export function MemberCell({
 }: MemberCellProps) {
     const {
         organization,
-        hooks: { useActiveOrganization, useSession },
+        hooks: { useActiveOrganization, useSession, useListTeams },
         localization: contextLocalization
     } = useContext(AuthUIContext)
     const localization = { ...contextLocalization, ...localizationProp }
 
     const { data: sessionData } = useSession()
     const { data: activeOrganization } = useActiveOrganization()
+    const { data: teams } = useListTeams()
     const [removeDialogOpen, setRemoveDialogOpen] = useState(false)
     const [updateRoleDialogOpen, setUpdateRoleDialogOpen] = useState(false)
 
@@ -60,6 +62,12 @@ export function MemberCell({
     const roles = [...builtInRoles, ...(organization?.customRoles || [])]
     const role = roles.find((r) => r.role === member.role)
 
+    // Find the team this member belongs to
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const memberTeam = teams?.find(
+        (team: any) => team.id === (member as any).teamId
+    )
+
     return (
         <>
             <Card
@@ -74,7 +82,14 @@ export function MemberCell({
                     localization={localization}
                     className="flex-1"
                 />
-                <span className="text-sm opacity-70">{role?.label}</span>
+                <div className="text-right">
+                    <div className="text-sm opacity-70">{role?.label}</div>
+                    {memberTeam && (
+                        <div className="text-xs text-muted-foreground">
+                            Team: {memberTeam.name}
+                        </div>
+                    )}
+                </div>
 
                 {(member.role !== "owner" || myRole === "owner") &&
                     !hideActions && (
@@ -104,16 +119,30 @@ export function MemberCell({
                                         setUpdateRoleDialogOpen(true)
                                     }
                                 >
-                                    <UserCogIcon className={classNames?.icon} />
                                     {localization?.UPDATE_ROLE}
+                                    <DropdownMenuShortcut>
+                                        <UserCogIcon
+                                            className={cn(
+                                                "size-3.5 text-neutral-200",
+                                                classNames?.icon
+                                            )}
+                                        />
+                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
 
                                 <DropdownMenuItem
                                     onClick={() => setRemoveDialogOpen(true)}
                                     variant="destructive"
                                 >
-                                    <UserXIcon className={classNames?.icon} />
                                     {localization?.REMOVE_MEMBER}
+                                    <DropdownMenuShortcut>
+                                        <UserXIcon
+                                            className={cn(
+                                                "size-3.5 text-neutral-200",
+                                                classNames?.icon
+                                            )}
+                                        />
+                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

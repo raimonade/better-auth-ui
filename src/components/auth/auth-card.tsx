@@ -6,7 +6,7 @@ import { type ReactNode, useContext, useEffect, useState } from "react"
 import { useIsHydrated } from "../../hooks/use-hydrated"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import type { AuthView } from "../../lib/auth-view-paths"
-import { socialProviders } from "../../lib/social-providers"
+import { socialProviders, type Provider } from "../../lib/social-providers"
 import { cn, getAuthViewByPath } from "../../lib/utils"
 import type { AuthLocalization } from "../../localization/auth-localization"
 import { AcceptInvitationCard } from "../organization/accept-invitation-card"
@@ -303,34 +303,46 @@ export function AuthCard({
                                                 "grid grid-cols-2"
                                         )}
                                     >
-                                        {social?.providers?.map((provider) => {
-                                            const socialProvider =
-                                                socialProviders.find(
-                                                    (socialProvider) =>
-                                                        socialProvider.provider ===
-                                                        provider
-                                                )
-                                            if (!socialProvider) return null
+                                        {social?.providers?.map(
+                                            (provider: string) => {
+                                                const socialProvider =
+                                                    socialProviders.find(
+                                                        (socialProvider) =>
+                                                            socialProvider.provider ===
+                                                            provider
+                                                    )
+                                                if (!socialProvider) return null
 
-                                            return (
-                                                <ProviderButton
-                                                    key={provider}
-                                                    classNames={classNames}
-                                                    callbackURL={callbackURL}
-                                                    isSubmitting={isSubmitting}
-                                                    localization={localization}
-                                                    provider={socialProvider}
-                                                    redirectTo={redirectTo}
-                                                    setIsSubmitting={
-                                                        setIsSubmitting
-                                                    }
-                                                    socialLayout={socialLayout}
-                                                />
-                                            )
-                                        })}
+                                                return (
+                                                    <ProviderButton
+                                                        key={provider}
+                                                        classNames={classNames}
+                                                        callbackURL={
+                                                            callbackURL
+                                                        }
+                                                        isSubmitting={
+                                                            isSubmitting
+                                                        }
+                                                        localization={
+                                                            localization
+                                                        }
+                                                        provider={
+                                                            socialProvider
+                                                        }
+                                                        redirectTo={redirectTo}
+                                                        setIsSubmitting={
+                                                            setIsSubmitting
+                                                        }
+                                                        socialLayout={
+                                                            socialLayout
+                                                        }
+                                                    />
+                                                )
+                                            }
+                                        )}
 
                                         {genericOAuth?.providers?.map(
-                                            (provider) => (
+                                            (provider: Provider) => (
                                                 <ProviderButton
                                                     key={provider.provider}
                                                     classNames={classNames}
