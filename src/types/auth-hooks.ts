@@ -1,9 +1,12 @@
 import type { BetterFetchError } from "@better-fetch/fetch"
 import type { Invitation } from "better-auth/plugins/organization"
+import type { AnyAuthClient } from "./any-auth-client"
 import type { ApiKey } from "./api-key"
-import type { AuthClient, Session, User } from "./auth-client"
+import type { AuthClient } from "./auth-client"
 import type { Refetch } from "./refetch"
-import type { Team, TeamMember } from "./team-options"
+import type { Team } from "./team-options"
+
+type AnyAuthSession = AnyAuthClient["$Infer"]["Session"]
 
 type AuthHook<T> = {
     isPending: boolean
@@ -12,21 +15,36 @@ type AuthHook<T> = {
     refetch?: Refetch
 }
 
-export interface AuthHooks {
-    useSession: AuthClient["useSession"]
+export type AuthHooks = {
+    useSession: () => ReturnType<AnyAuthClient["useSession"]>
     useListAccounts: () => AuthHook<{ accountId: string; provider: string }[]>
-    useListDeviceSessions: () => AuthHook<{ session: Session; user: User }[]>
-    useListSessions: () => AuthHook<Session[]>
-    useListPasskeys: AuthClient["useListPasskeys"]
+    useListDeviceSessions: () => AuthHook<AnyAuthClient["$Infer"]["Session"][]>
+    useListSessions: () => AuthHook<AnyAuthSession["session"][]>
+    useListPasskeys: () => Partial<ReturnType<AuthClient["useListPasskeys"]>>
     useListApiKeys: () => AuthHook<ApiKey[]>
-    useActiveOrganization: AuthClient["useActiveOrganization"]
-    useListOrganizations: AuthClient["useListOrganizations"]
-    useHasPermission: (params: {
-        permissions: Record<string, string[]>
-    }) => AuthHook<{ success: boolean }>
-    useInvitation: (params: { query: { id: string } }) => AuthHook<Invitation>
+    useActiveOrganization: () => Partial<
+        ReturnType<AuthClient["useActiveOrganization"]>
+    >
+    useListOrganizations: () => Partial<
+        ReturnType<AuthClient["useListOrganizations"]>
+    >
+    useHasPermission: (
+        params: Parameters<AuthClient["organization"]["hasPermission"]>[0]
+    ) => AuthHook<{
+        error: null
+        success: boolean
+    }>
+    useInvitation: (
+        params: Parameters<AuthClient["organization"]["getInvitation"]>[0]
+    ) => AuthHook<
+        Invitation & {
+            organizationName: string
+            organizationSlug: string
+            organizationLogo?: string
+        }
+    >
+    useIsRestoring?: () => boolean
     useListTeams: (params?: {
         query?: { organizationId?: string }
     }) => AuthHook<Team[]>
-    useIsRestoring?: () => boolean
 }

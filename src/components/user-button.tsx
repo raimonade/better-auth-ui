@@ -1,6 +1,4 @@
 "use client"
-
-import type { Session, User } from "better-auth"
 import {
     ChevronsUpDown,
     LogInIcon,
@@ -25,6 +23,8 @@ import { AuthUIContext } from "../lib/auth-ui-provider"
 import { getLocalizedError } from "../lib/utils"
 import { cn } from "../lib/utils"
 import type { AuthLocalization } from "../localization/auth-localization"
+import type { AnyAuthClient } from "../types/any-auth-client"
+import type { User } from "../types/auth-client"
 import { Button } from "./ui/button"
 import {
     DropdownMenu,
@@ -65,23 +65,13 @@ export interface UserButtonProps {
         label: ReactNode
         signedIn?: boolean
     }[]
-    customTrigger?: ReactNode
+    trigger?: ReactNode
     disableDefaultLinks?: boolean
-    /**
-     * Whether to restrict multi-session/add account functionality to admin+ users only
-     * @default false
-     */
-    restrictMultiSessionToAdmins?: boolean
     /**
      * @default authLocalization
      * @remarks `AuthLocalization`
      */
     localization?: AuthLocalization
-}
-
-type DeviceSession = {
-    session: Session
-    user: User
 }
 
 /**
@@ -99,10 +89,9 @@ export function UserButton({
     className,
     classNames,
     align,
-    customTrigger,
+    trigger,
     additionalLinks,
     disableDefaultLinks,
-    restrictMultiSessionToAdmins = false,
     localization: propLocalization,
     size,
     ...props
@@ -126,7 +115,10 @@ export function UserButton({
         [contextLocalization, propLocalization]
     )
 
-    let deviceSessions: DeviceSession[] | undefined | null = null
+    let deviceSessions:
+        | AnyAuthClient["$Infer"]["Session"][]
+        | undefined
+        | null = null
     let deviceSessionsPending = false
 
     if (multiSession) {
@@ -141,16 +133,10 @@ export function UserButton({
     const [activeSessionPending, setActiveSessionPending] = useState(false)
 
     const isPending = sessionPending || activeSessionPending
-
     // Check if current user has admin+ permissions for multi-session functionality
     const userRole = activeOrganization?.members?.find(
         (member) => member.userId === user?.id
     )?.role
-
-    const canUseMultiSession =
-        !restrictMultiSessionToAdmins ||
-        userRole === "owner" ||
-        userRole === "admin"
 
     const switchAccount = useCallback(
         async (sessionToken: string) => {
@@ -199,7 +185,7 @@ export function UserButton({
                     classNames?.trigger?.base
                 )}
             >
-                {customTrigger ||
+                {trigger ||
                     (size === "icon" ? (
                         <Button
                             size="icon"
@@ -228,7 +214,9 @@ export function UserButton({
                         >
                             <UserView
                                 size={size}
-                                user={!user?.isAnonymous ? user : null}
+                                user={
+                                    !(user as User)?.isAnonymous ? user : null
+                                }
                                 isPending={isPending}
                                 classNames={classNames?.trigger?.user}
                                 localization={localization}
@@ -248,7 +236,7 @@ export function UserButton({
                 onCloseAutoFocus={(e) => e.preventDefault()}
             >
                 <div className={cn("p-2", classNames?.content?.menuItem)}>
-                    {(user && !user.isAnonymous) || isPending ? (
+                    {(user && !(user as User).isAnonymous) || isPending ? (
                         <UserView
                             user={user}
                             isPending={isPending}
@@ -275,15 +263,16 @@ export function UserButton({
                                 <DropdownMenuItem
                                     className={classNames?.content?.menuItem}
                                 >
-                                    {icon}
-
-                                    {label}
+                                    <>
+                                        {icon}
+                                        {label}
+                                    </>
                                 </DropdownMenuItem>
                             </Link>
                         )
                 )}
 
-                {!user || user.isAnonymous ? (
+                {!user || (user as User).isAnonymous ? (
                     <>
                         <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
                             <DropdownMenuItem
@@ -311,7 +300,7 @@ export function UserButton({
                     </>
                 ) : (
                     <>
-                        {user && multiSession && canUseMultiSession && (
+                        {user && multiSession && (
                             <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
                                 <DropdownMenuItem
                                     className={classNames?.content?.menuItem}
@@ -324,7 +313,7 @@ export function UserButton({
                             </Link>
                         )}
 
-                        {!disableDefaultLinks && settings && (
+                        {/* {!disableDefaultLinks && settings && (
                             <Link
                                 href={
                                     settings.url ||
@@ -340,7 +329,7 @@ export function UserButton({
                                     </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                             </Link>
-                        )}
+                        )} */}
 
                         <Link href={`${basePath}/${viewPaths.SIGN_OUT}`}>
                             <DropdownMenuItem
@@ -355,7 +344,7 @@ export function UserButton({
                     </>
                 )}
 
-                {user && multiSession && canUseMultiSession && (
+                {user && multiSession && (
                     <>
                         <DropdownMenuSeparator
                             className={classNames?.content?.separator}

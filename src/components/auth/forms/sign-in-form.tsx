@@ -108,6 +108,48 @@ export function SignInForm({
         setIsSubmitting?.(form.formState.isSubmitting || transitionPending)
     }, [form.formState.isSubmitting, transitionPending, setIsSubmitting])
 
+    // Handle invitation-related errors from URL parameters
+    useEffect(() => {
+        if (!isHydrated) return
+
+        const error = new URLSearchParams(window.location.search).get("error")
+        if (error) {
+            let errorMessage = ""
+
+            switch (error) {
+                case "invitation_not_found":
+                    errorMessage =
+                        localization.INVITATION_NOT_FOUND_ERROR ||
+                        "Invitation not found"
+                    break
+                case "invitation_already_used":
+                    errorMessage =
+                        localization.INVITATION_ALREADY_USED ||
+                        "Invitation has already been used"
+                    break
+                case "invitation_expired":
+                    errorMessage =
+                        localization.INVITATION_EXPIRED ||
+                        "Invitation has expired"
+                    break
+                default:
+                    return // Don't show toast for other errors, let the provider handle them
+            }
+
+            if (errorMessage) {
+                toast({
+                    variant: "error",
+                    message: errorMessage
+                })
+
+                // Clean up the URL by removing the error parameter
+                const url = new URL(window.location.href)
+                url.searchParams.delete("error")
+                window.history.replaceState({}, "", url.toString())
+            }
+        }
+    }, [isHydrated, localization, toast])
+
     async function signIn({
         email,
         password,
@@ -118,7 +160,7 @@ export function SignInForm({
 
             if (usernameEnabled && !isValidEmail(email)) {
                 const fetchOptions: BetterFetchOption = {
-                    throw: true,
+                    throw: true
                 }
 
                 response = await authClient.signIn.username({
@@ -129,7 +171,7 @@ export function SignInForm({
                 })
             } else {
                 const fetchOptions: BetterFetchOption = {
-                    throw: true,
+                    throw: true
                 }
 
                 response = await authClient.signIn.email({

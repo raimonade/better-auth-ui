@@ -869,6 +869,67 @@ export const authLocalization = {
     /** @default "Available Users" */
     AVAILABLE_USERS: "Available Users",
 
+    /** @default "Invitation not found" */
+    INVITATION_NOT_FOUND: "Invitation not found",
+
+    /** @default "Sign Up to Accept" */
+    SIGN_UP_TO_ACCEPT: "Sign Up to Accept",
+
+    /** @default "Sign In to Accept" */
+    SIGN_IN_TO_ACCEPT: "Sign In to Accept",
+
+    /** @default "You need to create an account to accept this invitation." */
+    SIGN_UP_TO_ACCEPT_INVITATION_DESCRIPTION:
+        "You need to create an account to accept this invitation.",
+
+    /** @default "You need to sign in to accept this invitation." */
+    SIGN_IN_TO_ACCEPT_INVITATION_DESCRIPTION:
+        "You need to sign in to accept this invitation.",
+
+    /** @default "Account created successfully!" */
+    ACCOUNT_CREATED_SUCCESSFULLY: "Account created successfully!",
+
+    /** @default "Account created and invitation accepted successfully!" */
+    ACCOUNT_CREATED_AND_INVITATION_ACCEPTED:
+        "Account created and invitation accepted successfully!",
+
+    /** @default "Organization Invitation" */
+    ORGANIZATION_INVITATION: "Organization Invitation",
+
+    /** @default "Organization details will be shown after creating your account" */
+    INVITATION_DETAILS_AFTER_SIGNUP:
+        "Organization details will be shown after creating your account",
+
+    /** @default "Invalid or expired invitation" */
+    INVALID_INVITATION: "Invalid or expired invitation",
+
+    /** @default "Email must match the invitation email" */
+    EMAIL_MUST_MATCH_INVITATION: "Email must match the invitation email",
+
+    /** @default "Invalid invitation. Please check your invitation link." */
+    INVALID_INVITATION_LINK:
+        "Invalid invitation. Please check your invitation link.",
+
+    /** @default "Invitation not found" */
+    INVITATION_NOT_FOUND_ERROR: "Invitation not found",
+
+    /** @default "Sign-ups are invitation-only. Please use an invitation link to create an account." */
+    SIGN_UP_REQUIRES_INVITATION:
+        "Sign-ups are invitation-only. Please use an invitation link to create an account.",
+
+    /** @default "This invitation has already been used or cancelled." */
+    INVITATION_ALREADY_USED:
+        "This invitation has already been used or cancelled.",
+
+    /** @default "Access Denied" */
+    ACCESS_DENIED: "Access Denied",
+
+    /** @default "Validating invitation..." */
+    VALIDATING_INVITATION: "Validating invitation...",
+
+    /** @default "Redirecting to sign in..." */
+    REDIRECTING_TO_SIGN_IN: "Redirecting to sign in...",
+
     ...BASE_ERROR_CODES,
     ...ADMIN_ERROR_CODES,
     ...ANONYMOUS_ERROR_CODES,

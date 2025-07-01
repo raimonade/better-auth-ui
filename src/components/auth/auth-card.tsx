@@ -303,46 +303,53 @@ export function AuthCard({
                                                 "grid grid-cols-2"
                                         )}
                                     >
-                                        {social?.providers?.map(
-                                            (provider: string) => {
-                                                const socialProvider =
-                                                    socialProviders.find(
-                                                        (socialProvider) =>
-                                                            socialProvider.provider ===
-                                                            provider
-                                                    )
-                                                if (!socialProvider) return null
-
-                                                return (
-                                                    <ProviderButton
-                                                        key={provider}
-                                                        classNames={classNames}
-                                                        callbackURL={
-                                                            callbackURL
-                                                        }
-                                                        isSubmitting={
-                                                            isSubmitting
-                                                        }
-                                                        localization={
-                                                            localization
-                                                        }
-                                                        provider={
-                                                            socialProvider
-                                                        }
-                                                        redirectTo={redirectTo}
-                                                        setIsSubmitting={
-                                                            setIsSubmitting
-                                                        }
-                                                        socialLayout={
-                                                            socialLayout
-                                                        }
-                                                    />
+                                        {social?.providers?.map((provider) => {
+                                            const socialProvider =
+                                                socialProviders.find(
+                                                    (socialProvider) =>
+                                                        socialProvider.provider ===
+                                                        provider
                                                 )
-                                            }
-                                        )}
+                                            if (!socialProvider) return null
+
+                                            return (
+                                                <ProviderButton
+                                                    key={provider}
+                                                    classNames={classNames}
+                                                    callbackURL={callbackURL}
+                                                    isSubmitting={isSubmitting}
+                                                    localization={localization}
+                                                    provider={socialProvider}
+                                                    redirectTo={redirectTo}
+                                                    setIsSubmitting={
+                                                        setIsSubmitting
+                                                    }
+                                                    socialLayout={socialLayout}
+                                                />
+                                            )
+                                        })}
 
                                         {genericOAuth?.providers?.map(
                                             (provider: Provider) => (
+                                                <ProviderButton
+                                                    key={provider.provider}
+                                                    classNames={classNames}
+                                                    callbackURL={callbackURL}
+                                                    isSubmitting={isSubmitting}
+                                                    localization={localization}
+                                                    provider={provider}
+                                                    redirectTo={redirectTo}
+                                                    setIsSubmitting={
+                                                        setIsSubmitting
+                                                    }
+                                                    socialLayout={socialLayout}
+                                                    other
+                                                />
+                                            )
+                                        )}
+
+                                        {genericOAuth?.providers?.map(
+                                            (provider) => (
                                                 <ProviderButton
                                                     key={provider.provider}
                                                     classNames={classNames}

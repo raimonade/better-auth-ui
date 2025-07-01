@@ -35,7 +35,8 @@ export function AcceptInvitationCard({
         localization: contextLocalization,
         toast,
         redirectTo,
-        replace
+        replace,
+        signUp
     } = useContext(AuthUIContext)
 
     const localization = useMemo(
@@ -62,10 +63,7 @@ export function AcceptInvitationCard({
         setInvitationId(invitationIdParam)
     }, [localization.INVITATION_NOT_FOUND, toast, replace, redirectTo])
 
-    // If session is not loaded yet, use authenticate hook to check
-    useAuthenticate()
-
-    if (!sessionData || !invitationId) {
+    if (!invitationId) {
         return (
             <AcceptInvitationSkeleton
                 className={className}
@@ -74,12 +72,22 @@ export function AcceptInvitationCard({
         )
     }
 
+    // Show invitation content regardless of authentication status for both flows
+    // Users should be able to see invitation details and then choose to sign up or sign in
+    const isAuthenticated = !!sessionData
+    const isSignUpDisabled = !signUp
+
+    // We always show invitation content to unauthenticated users
+    // They can then choose to sign up or sign in to accept the invitation
+
     return (
         <AcceptInvitationContent
             className={className}
             classNames={classNames}
             localization={localization}
             invitationId={invitationId}
+            isAuthenticated={isAuthenticated}
+            isSignUpDisabled={isSignUpDisabled}
         />
     )
 }
@@ -88,15 +96,24 @@ function AcceptInvitationContent({
     className,
     classNames,
     localization: localizationProp,
-    invitationId
-}: AcceptInvitationCardProps & { invitationId: string }) {
+    invitationId,
+    isAuthenticated,
+    isSignUpDisabled
+}: AcceptInvitationCardProps & {
+    invitationId: string
+    isAuthenticated: boolean
+    isSignUpDisabled: boolean
+}) {
     const {
         authClient,
+        basePath,
         localization: contextLocalization,
         toast,
         redirectTo,
         replace,
+        navigate,
         organization,
+        viewPaths,
         hooks: { useInvitation }
     } = useContext(AuthUIContext)
 
@@ -109,13 +126,21 @@ function AcceptInvitationContent({
     const [isAccepting, setIsAccepting] = useState(false)
     const isProcessing = isRejecting || isAccepting
 
+    // Only fetch full invitation details if authenticated
+    // For unauthenticated users in invitation-only flows, we'll show basic UI
+    const shouldFetchInvitation = isAuthenticated || !isSignUpDisabled
+
     const { data: invitation, isPending } = useInvitation({
-        query: {
-            id: invitationId
-        }
+        query: shouldFetchInvitation
+            ? {
+                  id: invitationId
+              }
+            : undefined
     })
 
     useEffect(() => {
+        // Skip validation if we're not fetching invitation details
+        if (!shouldFetchInvitation) return
         if (isPending || !invitationId) return
 
         if (!invitation) {
@@ -143,6 +168,7 @@ function AcceptInvitationContent({
             replace(redirectTo)
         }
     }, [
+        shouldFetchInvitation,
         invitation,
         isPending,
         invitationId,
@@ -154,6 +180,22 @@ function AcceptInvitationContent({
 
     const acceptInvitation = async () => {
         if (!invitationId) return
+
+        // If user is not authenticated, redirect based on signUp configuration
+        if (!isAuthenticated) {
+            if (isSignUpDisabled) {
+                // Invitation-only: redirect to sign-up with invitation context
+                navigate(
+                    `${basePath}/${viewPaths.SIGN_UP}?invitationId=${invitationId}`
+                )
+            } else {
+                // Regular flow: user can choose sign-up or sign-in, default to sign-up for invitations
+                navigate(
+                    `${basePath}/${viewPaths.SIGN_UP}?invitationId=${invitationId}`
+                )
+            }
+            return
+        }
 
         setIsAccepting(true)
 
@@ -217,13 +259,34 @@ function AcceptInvitationContent({
         roles.find((r) => r.role === invitation?.role)?.label ||
         invitation?.role
 
-    if (isPending)
+    // Show loading only if we're actually fetching invitation data
+    if (shouldFetchInvitation && isPending)
         return (
             <AcceptInvitationSkeleton
                 className={className}
                 classNames={classNames}
             />
         )
+
+    // Determine the accept button text based on authentication status
+    const getAcceptButtonText = () => {
+        if (!isAuthenticated) {
+            // For both invitation-only and regular flows, we direct to sign-up for invitations
+            return localization.SIGN_UP_TO_ACCEPT || "Sign Up to Accept"
+        }
+        return localization.ACCEPT
+    }
+
+    // Determine the description based on authentication status
+    const getDescription = () => {
+        if (!isAuthenticated) {
+            return (
+                localization.SIGN_UP_TO_ACCEPT_INVITATION_DESCRIPTION ||
+                "You need to create an account to accept this invitation."
+            )
+        }
+        return localization.ACCEPT_INVITATION_DESCRIPTION
+    }
 
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
@@ -245,7 +308,7 @@ function AcceptInvitationContent({
                         classNames?.description
                     )}
                 >
-                    {localization.ACCEPT_INVITATION_DESCRIPTION}
+                    {getDescription()}
                 </CardDescription>
             </CardHeader>
 
@@ -255,25 +318,36 @@ function AcceptInvitationContent({
                     classNames?.content
                 )}
             >
+                {/* Show organization details if we have invitation data, or basic info if not */}
                 <Card className={cn("flex-row items-center p-4")}>
-                    <OrganizationView
-                        organization={
-                            invitation
-                                ? {
-                                      id: invitation.organizationId,
-                                      name: invitation.organizationName,
-                                      slug: invitation.organizationSlug,
-                                      logo: invitation.organizationLogo,
-                                      createdAt: new Date()
-                                  }
-                                : null
-                        }
-                        localization={localization}
-                    />
-
-                    <p className="ml-auto text-muted-foreground text-sm">
-                        {roleLabel}
-                    </p>
+                    {invitation ? (
+                        <>
+                            <OrganizationView
+                                organization={{
+                                    id: invitation.organizationId,
+                                    name: invitation.organizationName,
+                                    slug: invitation.organizationSlug,
+                                    logo: invitation.organizationLogo,
+                                    createdAt: new Date()
+                                }}
+                                localization={localization}
+                            />
+                            <p className="ml-auto text-muted-foreground text-sm">
+                                {roleLabel}
+                            </p>
+                        </>
+                    ) : (
+                        <div className="flex flex-col flex-1">
+                            <span className="font-semibold text-sm">
+                                {localization.ORGANIZATION_INVITATION ||
+                                    "Organization Invitation"}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                                {localization.INVITATION_DETAILS_AFTER_SIGNUP ||
+                                    "Organization details will be shown after creating your account"}
+                            </span>
+                        </div>
+                    )}
                 </Card>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -309,11 +383,24 @@ function AcceptInvitationContent({
                             <CheckIcon />
                         )}
 
-                        {localization.ACCEPT}
+                        {getAcceptButtonText()}
                     </Button>
                 </div>
             </CardContent>
         </Card>
+    )
+}
+
+function AuthRequiredWrapper({
+    className,
+    classNames
+}: Pick<AcceptInvitationCardProps, "className" | "classNames">) {
+    useAuthenticate()
+    return (
+        <AcceptInvitationSkeleton
+            className={className}
+            classNames={classNames}
+        />
     )
 }
 
@@ -323,7 +410,7 @@ const AcceptInvitationSkeleton = ({
     localization
 }: AcceptInvitationCardProps) => {
     return (
-        <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
+        <Card className={cn("w-full max-w-lg", className, classNames?.base)}>
             <CardHeader
                 className={cn("justify-items-center", classNames?.header)}
             >

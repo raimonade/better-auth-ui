@@ -25,6 +25,7 @@ import type { AvatarOptions } from "../types/avatar-options"
 import type { CredentialsOptions } from "../types/credentials-options"
 import type { DeleteUserOptions } from "../types/delete-user-options"
 import type { GenericOAuthOptions } from "../types/generic-oauth-options"
+import type { GravatarOptions } from "../types/gravatar-options"
 import type { Link } from "../types/link"
 import type {
     OrganizationOptions,
@@ -131,6 +132,10 @@ export type AuthUIContextType = {
      * Generic OAuth provider configuration
      */
     genericOAuth?: GenericOAuthOptions
+    /**
+     * Gravatar configuration
+     */
+    gravatar?: boolean | GravatarOptions
     hooks: AuthHooks
     localization: AuthLocalization
     /**
@@ -170,10 +175,6 @@ export type AuthUIContextType = {
      * @default false
      */
     passkey?: boolean
-    /**
-     * Forces better-auth-tanstack to refresh the Session on the auth callback page
-     * @default false
-     */
     persistClient?: boolean
     settings?: SettingsOptions
     /**
@@ -755,50 +756,45 @@ export const AuthUIProvider = ({
             useSession: authClient.useSession,
             useListAccounts: () =>
                 useAuthData({
-                    queryFn: () => authClient.listAccounts(),
+                    queryFn: authClient.listAccounts,
                     cacheKey: "listAccounts"
                 }),
             useListDeviceSessions: () =>
                 useAuthData({
-                    queryFn: () => authClient.multiSession.listDeviceSessions(),
+                    queryFn: authClient.multiSession.listDeviceSessions,
                     cacheKey: "listDeviceSessions"
                 }),
             useListSessions: () =>
                 useAuthData({
-                    queryFn: () => authClient.listSessions(),
+                    queryFn: authClient.listSessions,
                     cacheKey: "listSessions"
                 }),
             useListPasskeys: authClient.useListPasskeys,
             useListApiKeys: () =>
                 useAuthData({
-                    queryFn: () => authClient.apiKey.list(),
+                    queryFn: authClient.apiKey.list,
                     cacheKey: "listApiKeys"
                 }),
             useActiveOrganization: authClient.useActiveOrganization,
             useListOrganizations: authClient.useListOrganizations,
-            useHasPermission: (
-                params: Parameters<
-                    typeof authClient.organization.hasPermission
-                >[0]
-            ) =>
+            useHasPermission: (params) =>
                 useAuthData({
                     queryFn: () =>
                         authClient.organization.hasPermission(params),
                     cacheKey: `hasPermission:${JSON.stringify(params)}`
                 }),
-            useInvitation: (
-                params: Parameters<
-                    typeof authClient.organization.getInvitation
-                >[0]
-            ) =>
+            useInvitation: (params) =>
                 useAuthData({
-                    queryFn: () =>
-                        authClient.organization.getInvitation(params),
+                    queryFn: () => {
+                        // Don't make request if params or params.query is undefined
+                        if (!params?.query) {
+                            return Promise.resolve({ data: null })
+                        }
+                        return authClient.organization.getInvitation(params)
+                    },
                     cacheKey: `invitation:${JSON.stringify(params)}`
                 }),
-            useListTeams: (
-                params?: Parameters<typeof authClient.organization.listTeams>[0]
-            ) =>
+            useListTeams: (params) =>
                 useAuthData({
                     queryFn: () =>
                         authClient.organization.listTeams(params || {}),
@@ -900,7 +896,7 @@ const OrganizationRefetcher = () => {
     useEffect(() => {
         if (!sessionData?.user.id) return
         if (activeOrganization) refetchActiveOrganization?.()
-        if (organizations) refetchListOrganizations()
+        if (organizations) refetchListOrganizations?.()
     }, [
         sessionData?.user.id,
         refetchActiveOrganization,

@@ -29,7 +29,7 @@ This component seamlessly pulls in settings from your [`AuthUIProvider`](../comp
 
 You can use the following props to further customize `<ProvidersCard />`:
 
-<AutoTypeTable path="../src/components/settings/providers-card.tsx" name="ProvidersCardProps" />
+<AutoTypeTable path="../src/components/settings/providers/providers-card.tsx" name="ProvidersCardProps" />
 
 ## Styling
 
@@ -56,10 +56,11 @@ Adjust displayed texts via the `localization` prop to fit your application's loc
 ```tsx
 <ProvidersCard
     localization={{
-        providers: "Social Accounts",
-        providersDescription: "Link or unlink your third-party social accounts.",
-        link: "Link Account",
-        unlink: "Unlink",
+        PROVIDERS: "Social Accounts",
+        PROVIDERS_DESCRIPTION: "Link or unlink your third-party social accounts.",
+        LINK: "Link Account",
+        UNLINK: "Unlink",
+    }}
 />
 ```
 

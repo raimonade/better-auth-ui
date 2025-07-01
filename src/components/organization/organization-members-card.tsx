@@ -96,7 +96,7 @@ function OrganizationMembersContent({
         data: hasPermissionUpdateMember,
         isPending: isPendingUpdateMember
     } = useHasPermission({
-        permissions: {
+        permission: {
             member: ["update"]
         }
     })
@@ -126,14 +126,12 @@ function OrganizationMembersContent({
                         className={cn("grid gap-4", classNames?.content)}
                     >
                         {members
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             .sort(
-                                (a: any, b: any) =>
+                                (a, b) =>
                                     a.createdAt.getTime() -
                                     b.createdAt.getTime()
                             )
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            .map((member: any) => (
+                            .map((member) => (
                                 <MemberCell
                                     key={member.id}
                                     classNames={classNames}

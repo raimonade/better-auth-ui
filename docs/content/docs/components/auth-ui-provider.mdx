@@ -60,7 +60,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           navigate={router.push}
           replace={router.replace}
           onSessionChange={() => router.refresh()}
-          providers={["github", "google", "facebook", "apple"]}
+          social={{
+            providers: ["github", "google", "facebook", "apple"]
+          }}
           multiSession
           magicLink
           passkey
@@ -74,7 +76,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             return data.url
           }}
-          settingsURL="/dashboard/settings"
           twoFactor={["otp", "totp"]}
           Link={Link}
         >

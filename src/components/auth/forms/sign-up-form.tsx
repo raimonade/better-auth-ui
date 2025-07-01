@@ -91,6 +91,156 @@ export function SignUpForm({
     localization = { ...contextLocalization, ...localization }
     passwordValidation = { ...contextPasswordValidation, ...passwordValidation }
 
+    // Check if this is an invitation-only system
+    const isSignUpEnabled = !!signUpOptions
+
+    // Early validation for invitation-only systems
+    const [invitationValidated, setInvitationValidated] = useState(false)
+    const [validationError, setValidationError] = useState<string | null>(null)
+
+    useEffect(() => {
+        // If sign-ups are enabled, no validation needed - anyone can sign up
+        if (isSignUpEnabled) {
+            setInvitationValidated(true)
+            return
+        }
+
+        // If sign-ups are disabled, we need a valid invitation
+        const invitationId = getSearchParam("invitationId")
+
+        if (!invitationId) {
+            setValidationError(
+                localization.SIGN_UP_REQUIRES_INVITATION ||
+                    "Sign-ups are invitation-only. Please use an invitation link to create an account."
+            )
+
+            // Redirect to sign-in with error message after a brief delay
+            setTimeout(() => {
+                navigate(
+                    `${basePath}/${viewPaths.SIGN_IN}?error=invitation_required`
+                )
+            }, 2000)
+            return
+        }
+
+        // Validate the invitation
+        authClient.organization
+            .getInvitation({
+                query: { id: invitationId }
+            })
+            .then((response) => {
+                const invitation = response.data
+
+                if (!invitation) {
+                    setValidationError(
+                        localization.INVITATION_NOT_FOUND ||
+                            "Invitation not found. Please check your invitation link."
+                    )
+                    setTimeout(() => {
+                        navigate(
+                            `${basePath}/${viewPaths.SIGN_IN}?error=invitation_not_found`
+                        )
+                    }, 2000)
+                    return
+                }
+
+                if (invitation.status !== "pending") {
+                    setValidationError(
+                        localization.INVITATION_ALREADY_USED ||
+                            "This invitation has already been used or cancelled."
+                    )
+                    setTimeout(() => {
+                        navigate(
+                            `${basePath}/${viewPaths.SIGN_IN}?error=invitation_used`
+                        )
+                    }, 2000)
+                    return
+                }
+
+                if (new Date(invitation.expiresAt) <= new Date()) {
+                    setValidationError(
+                        localization.INVITATION_EXPIRED ||
+                            "This invitation has expired."
+                    )
+                    setTimeout(() => {
+                        navigate(
+                            `${basePath}/${viewPaths.SIGN_IN}?error=invitation_expired`
+                        )
+                    }, 2000)
+                    return
+                }
+
+                // Invitation is valid
+                setInvitationValidated(true)
+            })
+            .catch((error) => {
+                console.error("Error validating invitation:", error)
+                setValidationError(
+                    localization.INVALID_INVITATION_LINK ||
+                        "Invalid invitation. Please check your invitation link."
+                )
+                setTimeout(() => {
+                    navigate(
+                        `${basePath}/${viewPaths.SIGN_IN}?error=invalid_invitation`
+                    )
+                }, 2000)
+            })
+    }, [
+        isSignUpEnabled,
+        authClient,
+        localization,
+        basePath,
+        viewPaths,
+        navigate
+    ])
+
+    // Show validation error if present
+    if (validationError) {
+        return (
+            <div
+                className={cn(
+                    "grid w-full gap-6 text-center",
+                    className,
+                    classNames?.base
+                )}
+            >
+                <div className="space-y-4">
+                    <div className="text-destructive font-semibold">
+                        {localization.ACCESS_DENIED || "Access Denied"}
+                    </div>
+                    <div className="text-muted-foreground">
+                        {validationError}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                        {localization.REDIRECTING_TO_SIGN_IN ||
+                            "Redirecting to sign in..."}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // Show loading state while validating invitation
+    if (!invitationValidated) {
+        return (
+            <div
+                className={cn(
+                    "grid w-full gap-6 text-center",
+                    className,
+                    classNames?.base
+                )}
+            >
+                <div className="space-y-4">
+                    <Loader2 className="animate-spin mx-auto h-6 w-6" />
+                    <div className="text-muted-foreground">
+                        {localization.VALIDATING_INVITATION ||
+                            "Validating invitation..."}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     // Avatar upload state
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [avatarImage, setAvatarImage] = useState<string | null>(null)
@@ -326,6 +476,38 @@ export function SignUpForm({
         ...additionalFieldValues
     }: z.infer<typeof formSchema>) {
         try {
+            // Check for invitation ID and validate email match
+            const invitationId = getSearchParam("invitationId")
+            if (invitationId) {
+                // Validate that the email matches the invitation using Better Auth API
+                try {
+                    const invitationResponse =
+                        await authClient.organization.getInvitation({
+                            query: {
+                                id: invitationId
+                            }
+                        })
+
+                    if (
+                        invitationResponse.data?.email &&
+                        invitationResponse.data.email !== email
+                    ) {
+                        form.setError("email", {
+                            message: `${localization.EMAIL_MUST_MATCH_INVITATION}: ${invitationResponse.data.email}`
+                        })
+                        return
+                    }
+                } catch (invitationError) {
+                    // If we can't fetch the invitation, it's invalid
+                    form.setError("email", {
+                        message:
+                            localization.INVALID_INVITATION_LINK ||
+                            "Invalid invitation. Please check your invitation link."
+                    })
+                    return
+                }
+            }
+
             // Validate additional fields with custom validators if provided
             for (const [field, value] of Object.entries(
                 additionalFieldValues
@@ -357,6 +539,68 @@ export function SignUpForm({
             })
 
             if ("token" in data && data.token) {
+                // Check for invitation ID in URL after successful sign-up
+                const invitationId = getSearchParam("invitationId")
+                if (invitationId) {
+                    try {
+                        // Accept the invitation automatically
+                        await authClient.organization.acceptInvitation({
+                            invitationId: invitationId,
+                            fetchOptions: { throw: true }
+                        })
+
+                        toast({
+                            variant: "success",
+                            message:
+                                localization.ACCOUNT_CREATED_AND_INVITATION_ACCEPTED ||
+                                "Account created and invitation accepted successfully!"
+                        })
+                    } catch (invitationError) {
+                        // Check if it's an email mismatch error from Better Auth
+                        const errorMessage =
+                            (invitationError as Error)?.message || ""
+
+                        if (
+                            errorMessage.includes("email") ||
+                            errorMessage.includes("recipient") ||
+                            errorMessage.includes(
+                                "YOU_ARE_NOT_THE_RECIPIENT_OF_THE_INVITATION"
+                            )
+                        ) {
+                            // This is likely an email mismatch error
+                            form.setError("email", {
+                                message:
+                                    localization.EMAIL_MUST_MATCH_INVITATION ||
+                                    "Email must match the invitation email"
+                            })
+                            return // Don't proceed with success, let user fix the email
+                        }
+
+                        // For other invitation errors, account was still created successfully
+                        toast({
+                            variant: "success",
+                            message:
+                                localization.ACCOUNT_CREATED_SUCCESSFULLY ||
+                                "Account created successfully!"
+                        })
+
+                        toast({
+                            variant: "error",
+                            message: getLocalizedError({
+                                error: invitationError,
+                                localization
+                            })
+                        })
+                    }
+                } else {
+                    toast({
+                        variant: "success",
+                        message:
+                            localization.ACCOUNT_CREATED_SUCCESSFULLY ||
+                            "Account created successfully!"
+                    })
+                }
+
                 await onSuccess()
             } else {
                 navigate(
@@ -636,10 +880,8 @@ export function SignUpForm({
                 )}
 
                 {signUpFields
-                    ?.filter(
-                        (field: string) => field !== "name" && field !== "image"
-                    )
-                    .map((field: string) => {
+                    ?.filter((field) => field !== "name" && field !== "image")
+                    .map((field) => {
                         const additionalField = additionalFields?.[field]
                         if (!additionalField) {
                             console.error(`Additional field ${field} not found`)

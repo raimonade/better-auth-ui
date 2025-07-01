@@ -45,9 +45,9 @@ export function AccountsCard({
         >
             {deviceSessions?.length && (
                 <CardContent className={cn("grid gap-4", classNames?.content)}>
-                    {deviceSessions?.map((deviceSession: any) => (
+                    {deviceSessions?.map((deviceSession) => (
                         <AccountCell
-                            key={deviceSession.id}
+                            key={deviceSession.session.id}
                             classNames={classNames}
                             deviceSession={deviceSession}
                             localization={localization}
