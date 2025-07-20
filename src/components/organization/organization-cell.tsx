@@ -38,6 +38,7 @@ export function OrganizationCell({
         basePath,
         hooks: { useActiveOrganization },
         localization: contextLocalization,
+        settings,
         viewPaths,
         navigate,
         toast
@@ -55,7 +56,9 @@ export function OrganizationCell({
 
     const handleManageOrganization = useCallback(async () => {
         if (activeOrganization?.id === organization.id) {
-            navigate(`${basePath}/${viewPaths.ORGANIZATION}`)
+            navigate(
+                `${settings?.basePath || basePath}/${viewPaths.ORGANIZATION}`
+            )
             return
         }
 
@@ -71,7 +74,9 @@ export function OrganizationCell({
 
             await refetchActiveOrganization?.()
 
-            navigate(`${basePath}/${viewPaths.ORGANIZATION}`)
+            navigate(
+                `${settings?.basePath || basePath}/${viewPaths.ORGANIZATION}`
+            )
         } catch (error) {
             toast({
                 variant: "error",
@@ -85,6 +90,7 @@ export function OrganizationCell({
         authClient,
         organization.id,
         basePath,
+        settings?.basePath,
         viewPaths,
         navigate,
         toast,

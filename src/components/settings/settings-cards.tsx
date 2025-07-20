@@ -5,7 +5,7 @@ import { useContext } from "react"
 
 import { useAuthenticate } from "../../hooks/use-authenticate"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
-import { cn } from "../../lib/utils"
+import { cn, getAuthViewByPath } from "../../lib/utils"
 import type { AuthLocalization } from "../../localization/auth-localization"
 import { OrganizationInvitationsCard } from "../organization/organization-invitations-card"
 import { OrganizationMembersCard } from "../organization/organization-members-card"
@@ -65,6 +65,7 @@ export interface SettingsCardsProps {
     className?: string
     classNames?: SettingsCardsClassNames
     localization?: AuthLocalization
+    pathname?: string
     view?: SettingsView
 }
 
@@ -72,6 +73,7 @@ export function SettingsCards({
     className,
     classNames,
     localization,
+    pathname,
     view
 }: SettingsCardsProps) {
     useAuthenticate()
@@ -81,11 +83,19 @@ export function SettingsCards({
         basePath,
         localization: contextLocalization,
         organization,
+        settings,
         viewPaths,
         Link
     } = useContext(AuthUIContext)
 
     localization = { ...contextLocalization, ...localization }
+
+    // Determine view from pathname if provided
+    const path = pathname?.split("/").pop()
+    view =
+        view ||
+        (getAuthViewByPath(viewPaths, path) as SettingsView) ||
+        "SETTINGS"
 
     // Personal settings group
     const personalGroup: NavigationItem[] = [
@@ -187,7 +197,7 @@ export function SettingsCards({
                             {currentNavigationGroup.map((item) => (
                                 <Link
                                     key={item.view}
-                                    href={`${basePath}/${viewPaths[item.view]}`}
+                                    href={`${settings?.basePath || basePath}/${viewPaths[item.view]}`}
                                 >
                                     <Button
                                         size="lg"
@@ -219,7 +229,7 @@ export function SettingsCards({
                     {currentNavigationGroup.map((item) => (
                         <Link
                             key={item.view}
-                            href={`${basePath}/${viewPaths[item.view]}`}
+                            href={`${settings?.basePath || basePath}/${viewPaths[item.view]}`}
                         >
                             <Button
                                 size="lg"
