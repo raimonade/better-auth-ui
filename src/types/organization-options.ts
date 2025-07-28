@@ -30,6 +30,11 @@ export type OrganizationOptions = {
      */
     customRoles?: Array<{ role: string; label: string }>
     /**
+     * Enable or disable API key support for organizations
+     * @default false
+     */
+    apiKey?: boolean
+    /**
      * Teams configuration
      * @default undefined
      */
@@ -47,6 +52,11 @@ export type OrganizationOptionsContext = {
      * @default []
      */
     customRoles: Array<{ role: string; label: string }>
+    /**
+     * Enable or disable API key support for organizations
+     * @default false
+     */
+    apiKey?: boolean
     /**
      * Teams configuration
      * @default undefined

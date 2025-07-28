@@ -1,8 +1,9 @@
 "use client"
 
 import { MenuIcon } from "lucide-react"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 
+import type { Organization } from "better-auth/plugins/organization"
 import { useAuthenticate } from "../../hooks/use-authenticate"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import { cn, getAuthViewByPath } from "../../lib/utils"
@@ -50,6 +51,7 @@ export const settingsViews = [
     "SECURITY",
     "API_KEYS",
     "ORGANIZATION",
+    "ORGANIZATION_API_KEYS",
     "ORGANIZATIONS",
     "MEMBERS",
     "TEAMS"
@@ -81,14 +83,25 @@ export function SettingsCards({
     const {
         apiKey,
         basePath,
+        hooks: { useActiveOrganization },
         localization: contextLocalization,
         organization,
         settings,
         viewPaths,
+        replace,
         Link
     } = useContext(AuthUIContext)
 
     localization = { ...contextLocalization, ...localization }
+
+    let activeOrganization: Organization | null | undefined = null
+    let organizationPending = false
+
+    if (organization) {
+        const { data, isPending } = useActiveOrganization()
+        activeOrganization = data
+        organizationPending = isPending || false
+    }
 
     // Determine view from pathname if provided
     const path = pathname?.split("/").pop()
@@ -96,6 +109,31 @@ export function SettingsCards({
         view ||
         (getAuthViewByPath(viewPaths, path) as SettingsView) ||
         "SETTINGS"
+
+    useEffect(() => {
+        if (organizationPending) return
+
+        const organizationOnlyViews = [
+            "ORGANIZATION",
+            "ORGANIZATION_API_KEYS",
+            "MEMBERS"
+        ]
+        if (
+            organizationOnlyViews.includes(view) &&
+            (!organization || !activeOrganization)
+        ) {
+            replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`)
+        }
+    }, [
+        activeOrganization,
+        organizationPending,
+        view,
+        basePath,
+        organization,
+        settings?.basePath,
+        replace,
+        viewPaths
+    ])
 
     // Personal settings group
     const personalGroup: NavigationItem[] = [
@@ -136,6 +174,14 @@ export function SettingsCards({
             view: "MEMBERS",
             label: localization.MEMBERS
         })
+
+        // Add API Keys to organization navigation if enabled
+        if (organization.apiKey) {
+            organizationGroup.push({
+                view: "ORGANIZATION_API_KEYS",
+                label: localization.API_KEYS
+            })
+        }
 
         if (organization.teams?.enabled) {
             organizationGroup.push({
@@ -279,6 +325,16 @@ export function SettingsCards({
                     classNames={classNames}
                     localization={localization}
                 />
+            )}
+
+            {view === "ORGANIZATION_API_KEYS" && organization?.apiKey && (
+                <div className={cn("flex w-full flex-col", classNames?.cards)}>
+                    <APIKeysCard
+                        classNames={classNames?.card}
+                        localization={localization}
+                        organizationId={activeOrganization?.id}
+                    />
+                </div>
             )}
 
             {view === "ORGANIZATIONS" && organization && (
