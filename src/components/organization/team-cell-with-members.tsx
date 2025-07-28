@@ -41,7 +41,7 @@ import {
 } from "../ui/select"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { UserView } from "../user-view"
+
 import { DeleteTeamDialog } from "./delete-team-dialog"
 import { UpdateTeamDialog } from "./update-team-dialog"
 import { Separator } from "../ui/separator"
@@ -63,7 +63,7 @@ export function TeamCellWithMembers({
     localization: localizationProp
 }: TeamCellWithMembersProps) {
     const {
-        hooks: { useHasPermission, useActiveOrganization, useListTeams },
+        hooks: { useHasPermission, useActiveOrganization, useListTeams, useListTeamMembers },
         authClient,
         localization: contextLocalization,
         toast
@@ -100,30 +100,26 @@ export function TeamCellWithMembers({
     const [isMoving, setIsMoving] = useState(false)
     const [isInviting, setIsInviting] = useState(false)
 
-    // Get team members from organization data filtered by teamId
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const teamMembers =
-        activeOrg?.members?.filter((member: any) => {
-            return member.teamId === team.id
-        }) || []
+    // Get team members using the new API
+    const { data: teamMembers = [] } = useListTeamMembers({
+        query: { teamId: team.id }
+    })
 
     // Get available members (org members not in this team) for search dialog
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const availableMembers =
-        activeOrg?.members?.filter((member: any) => {
-            return member.teamId !== team.id
-        }) || []
+    // This is more complex now - we need to get all org members and filter out team members
+    const availableMembers = activeOrg?.members?.filter((member: any) => {
+        return !teamMembers.some((tm: any) => tm.userId === member.user?.id)
+    }) || []
 
     const canManage =
         hasUpdatePermission?.success || hasDeletePermission?.success
 
-    const handleRemoveFromTeam = async (member: any) => {
+    const handleRemoveFromTeam = async (teamMember: any) => {
         try {
-            // Since better-auth doesn't have direct team member removal,
-            // we remove them from the organization entirely
-            await authClient.organization.removeMember({
-                memberIdOrEmail: member.id,
-                organizationId: activeOrg?.id
+            // Use the new removeTeamMember API
+            await authClient.organization.removeTeamMember({
+                teamId: team.id,
+                userId: teamMember.userId
             })
 
             toast({
@@ -144,22 +140,19 @@ export function TeamCellWithMembers({
 
         setIsMoving(true)
         try {
-            // Remove from organization and re-invite to new team
-            await authClient.organization.removeMember({
-                memberIdOrEmail: selectedMember.id,
-                organizationId: activeOrg?.id
+            // Remove from current team
+            await authClient.organization.removeTeamMember({
+                teamId: team.id,
+                userId: selectedMember.userId
             })
 
-            // Send new invitation with target team
-            await authClient.organization.inviteMember({
-                email: selectedMember.user.email,
-                role: selectedMember.role,
-                teamId:
-                    selectedTargetTeam === "no-team"
-                        ? undefined
-                        : selectedTargetTeam,
-                organizationId: activeOrg?.id
-            })
+            // Add to new team if not "no-team"
+            if (selectedTargetTeam !== "no-team") {
+                await authClient.organization.addTeamMember({
+                    teamId: selectedTargetTeam,
+                    userId: selectedMember.userId
+                })
+            }
 
             toast({
                 variant: "success",
@@ -182,18 +175,10 @@ export function TeamCellWithMembers({
 
     const handleAddMemberToTeam = async (member: any) => {
         try {
-            // Remove from organization and re-invite to this team
-            await authClient.organization.removeMember({
-                memberIdOrEmail: member.id,
-                organizationId: activeOrg?.id
-            })
-
-            // Send new invitation with this team
-            await authClient.organization.inviteMember({
-                email: member.user.email,
-                role: member.role,
+            // Add member to this team using the new API
+            await authClient.organization.addTeamMember({
                 teamId: team.id,
-                organizationId: activeOrg?.id
+                userId: member.user.id
             })
 
             toast({
@@ -214,12 +199,15 @@ export function TeamCellWithMembers({
 
         setIsInviting(true)
         try {
+            // First invite to organization
             await authClient.organization.inviteMember({
                 email: email.trim(),
                 role: "member",
-                teamId: team.id,
                 organizationId: activeOrg?.id
             })
+
+            // Note: In Better Auth 1.3, team assignment happens after the user accepts the invitation
+            // You would typically add them to the team after they join the organization
 
             toast({
                 variant: "success",

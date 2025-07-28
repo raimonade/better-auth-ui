@@ -38,7 +38,7 @@ export function PasskeyButton({
 
         try {
             const response = await authClient.signIn.passkey({
-                fetchOptions: { throw: true }
+                
             })
 
             if (response?.error) {

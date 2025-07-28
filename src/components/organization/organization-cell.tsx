@@ -68,7 +68,7 @@ export function OrganizationCell({
             await authClient.organization.setActive({
                 organizationId: organization.id,
                 fetchOptions: {
-                    throw: true
+                    
                 }
             })
 

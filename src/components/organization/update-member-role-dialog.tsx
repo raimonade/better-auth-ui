@@ -101,7 +101,7 @@ export function UpdateMemberRoleDialog({
                 role: selectedRole,
                 organizationId: member.organizationId,
                 fetchOptions: {
-                    throw: true
+                    
                 }
             })
 

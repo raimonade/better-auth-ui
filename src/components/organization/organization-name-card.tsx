@@ -120,14 +120,12 @@ function OrganizationNameForm({
 
         try {
             await authClient.organization.update({
-                data: { name },
-                fetchOptions: {
-                    throw: true
-                }
+                organizationId: activeOrganization.id,
+                data: { name }
             })
 
-            await refetchActiveOrganization?.()
-            await refetchOrganizations?.()
+            refetchActiveOrganization?.()
+            refetchOrganizations?.()
 
             toast({
                 variant: "success",

@@ -132,7 +132,7 @@ export function TwoFactorForm({
         try {
             setIsSendingOtp(true)
             await authClient.twoFactor.sendOtp({
-                fetchOptions: { throw: true }
+                
             })
             setCooldownSeconds(60)
         } catch (error) {
@@ -166,7 +166,7 @@ export function TwoFactorForm({
             await verifyMethod({
                 code,
                 trustDevice,
-                fetchOptions: { throw: true }
+                
             })
 
             await onSuccess()

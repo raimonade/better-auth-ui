@@ -95,7 +95,7 @@ function EmailForm({
             await authClient.emailOtp.sendVerificationOtp({
                 email,
                 type: "sign-in",
-                fetchOptions: { throw: true }
+                
             })
 
             toast({
@@ -217,7 +217,7 @@ export function OTPForm({
             await authClient.signIn.emailOtp({
                 email,
                 otp: code,
-                fetchOptions: { throw: true }
+                
             })
 
             await onSuccess()

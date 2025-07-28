@@ -202,7 +202,7 @@ function AcceptInvitationContent({
         try {
             await authClient.organization.acceptInvitation({
                 invitationId: invitationId,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({
@@ -229,7 +229,7 @@ function AcceptInvitationContent({
         try {
             await authClient.organization.rejectInvitation({
                 invitationId: invitationId,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({

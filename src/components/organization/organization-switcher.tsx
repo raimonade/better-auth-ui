@@ -1,5 +1,6 @@
 "use client"
 
+
 import {
     ChevronsUpDown,
     LogInIcon,
@@ -152,10 +153,10 @@ export function OrganizationSwitcher({
                 await authClient.organization.setActive({
                     organizationId: organizationId,
                     fetchOptions: {
-                        throw: true
+                        
                     }
                 })
-                await refetchActiveOrganization?.()
+                refetchActiveOrganization?.()
             } catch (error) {
                 toast({
                     variant: "error",
@@ -222,7 +223,7 @@ export function OrganizationSwitcher({
                                 {(!sessionData && !isPending) ||
                                 activeOrganizationPending ||
                                 activeOrganization ||
-                                (user as User)?.isAnonymous ||
+                                
                                 hidePersonal ? (
                                     <OrganizationLogo
                                         key={activeOrganization?.logo}
@@ -267,7 +268,7 @@ export function OrganizationSwitcher({
                                 {(!sessionData && !isPending) ||
                                 activeOrganizationPending ||
                                 activeOrganization ||
-                                (user as User)?.isAnonymous ||
+                                
                                 hidePersonal ? (
                                     <OrganizationView
                                         classNames={

@@ -72,7 +72,7 @@ export function RecoverAccountForm({
         try {
             await authClient.twoFactor.verifyBackupCode({
                 code,
-                fetchOptions: { throw: true }
+                
             })
 
             await onSuccess()

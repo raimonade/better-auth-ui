@@ -80,7 +80,7 @@ export function ForgotPasswordForm({
             await authClient.forgetPassword({
                 email,
                 redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({

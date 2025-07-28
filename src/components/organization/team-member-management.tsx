@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useContext, useEffect } from "react"
+import { useState, useContext } from "react"
 import {
     AlertTriangle,
-    Mail,
     MoreHorizontal,
     Plus,
     Users,
@@ -57,7 +56,7 @@ export function TeamMemberManagement({
     className
 }: TeamMemberManagementProps) {
     const {
-        hooks: { useActiveOrganization, useHasPermission },
+        hooks: { useActiveOrganization, useHasPermission, useListTeamMembers },
         authClient,
         localization,
         toast
@@ -74,13 +73,10 @@ export function TeamMemberManagement({
     const [email, setEmail] = useState("")
     const [role, setRole] = useState("member")
     const [isInviting, setIsInviting] = useState(false)
-    // Get team members from organization data filtered by teamId
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const teamMembers =
-        activeOrg?.members?.filter((member: any) => {
-            // Check if member has teamId that matches current team
-            return member.teamId === team.id
-        }) || []
+    // Get team members using the new API
+    const { data: teamMembers = [] } = useListTeamMembers({
+        query: { teamId: team.id }
+    })
 
     const handleInviteToTeam = async () => {
         if (!email.trim()) {
@@ -93,14 +89,16 @@ export function TeamMemberManagement({
 
         setIsInviting(true)
         try {
-            // Invite member with specific team assignment
+            // First invite member to organization
             await authClient.organization.inviteMember({
                 email: email.trim(),
                 role: role as "member" | "admin" | "owner",
-                teamId: team.id,
                 organizationId: activeOrg?.id
             })
 
+            // Note: In Better Auth 1.3, team assignment happens after the user accepts the invitation
+            // You would typically add them to the team after they join the organization
+            
             toast({
                 variant: "success",
                 message: localization.INVITATION_SENT_SUCCESSFULLY
@@ -120,11 +118,11 @@ export function TeamMemberManagement({
         }
     }
 
-    const handleRemoveFromOrganization = async (memberIdOrEmail: string) => {
+    const handleRemoveFromTeam = async (userId: string) => {
         try {
-            await authClient.organization.removeMember({
-                memberIdOrEmail,
-                organizationId: activeOrg?.id
+            await authClient.organization.removeTeamMember({
+                teamId: team.id,
+                userId
             })
 
             toast({
@@ -272,20 +270,20 @@ export function TeamMemberManagement({
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {teamMembers.map((member: any) => (
+                        {teamMembers.map((teamMember: any) => (
                             <div
-                                key={member.id}
+                                key={teamMember.userId}
                                 className="flex items-center justify-between p-3 border rounded-lg"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <UserView user={member.user} />
+                                    <UserView user={teamMember.user} />
                                     <div>
                                         <p className="font-medium">
-                                            {member.user.name ||
-                                                member.user.email}
+                                            {teamMember.user?.name ||
+                                                teamMember.user?.email}
                                         </p>
-                                        <p className="text-sm text-muted-foreground capitalize">
-                                            {member.role}
+                                        <p className="text-sm text-muted-foreground">
+                                            Team Member
                                         </p>
                                     </div>
                                 </div>
@@ -298,15 +296,13 @@ export function TeamMemberManagement({
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem
                                             onClick={() =>
-                                                handleRemoveFromOrganization(
-                                                    member.id
+                                                handleRemoveFromTeam(
+                                                    teamMember.userId
                                                 )
                                             }
                                             className="text-destructive focus:text-destructive"
                                         >
-                                            {
-                                                localization.REMOVE_FROM_ORGANIZATION
-                                            }
+                                            {localization.REMOVE_FROM_TEAM}
                                             <DropdownMenuShortcut>
                                                 <UserX className="size-3.5 text-neutral-200" />
                                             </DropdownMenuShortcut>

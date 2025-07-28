@@ -83,7 +83,7 @@ export function DeleteOrganizationDialog({
             await authClient.organization.delete({
                 organizationId: activeOrganization.id,
                 fetchOptions: {
-                    throw: true
+                    
                 }
             })
 

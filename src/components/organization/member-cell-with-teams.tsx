@@ -8,7 +8,7 @@ import {
     UserXIcon,
     ArrowRightLeft
 } from "lucide-react"
-import { useContext, useState } from "react"
+import { useContext, useState, useEffect } from "react"
 
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import { cn } from "../../lib/utils"
@@ -86,31 +86,54 @@ export function MemberCellWithTeams({
     const roles = [...builtInRoles, ...(organization?.customRoles || [])]
     const role = roles.find((r) => r.role === member.role)
 
-    // Find the team this member belongs to
-    const memberTeam = teams?.find((team) => {
-        // Check if member has teamId that matches team
-        return member.teamId === team.id
-    })
+    // Find the team this member belongs to by checking team membership
+    // Note: This is a simplified approach - in a real app you might want to cache this data
+    const [memberTeam, setMemberTeam] = useState<any>(null)
+    
+    // Check team membership for this user
+    useEffect(() => {
+        const findMemberTeam = async () => {
+            if (!teams || !member.user.id) return
+            
+            for (const team of teams) {
+                try {
+                    const teamMembers = await authClient.organization.listTeamMembers({
+                        query: { teamId: team.id }
+                    })
+                    if (teamMembers.data?.some((tm: any) => tm.userId === member.user.id)) {
+                        setMemberTeam(team)
+                        return
+                    }
+                } catch (error) {
+                    // Team member lookup failed, continue to next team
+                }
+            }
+            setMemberTeam(null)
+        }
+        
+        findMemberTeam()
+    }, [teams, member.user.id, authClient])
 
     const handleMoveToTeam = async () => {
         if (!selectedTeamId && selectedTeamId !== "no-team") return
 
         setIsMovingTeam(true)
         try {
-            // Remove from organization and re-invite to new team
-            await authClient.organization.removeMember({
-                memberIdOrEmail: member.id,
-                organizationId: activeOrganization?.id
-            })
+            // First, remove from current team if they're in one
+            if (memberTeam) {
+                await authClient.organization.removeTeamMember({
+                    teamId: memberTeam.id,
+                    userId: member.user.id!
+                })
+            }
 
-            // Send new invitation with target team
-            await authClient.organization.inviteMember({
-                email: member.user.email!,
-                role: member.role as "member" | "admin" | "owner",
-                teamId:
-                    selectedTeamId === "no-team" ? undefined : selectedTeamId,
-                organizationId: activeOrganization?.id
-            })
+            // Then add to new team if not "no-team"
+            if (selectedTeamId !== "no-team") {
+                await authClient.organization.addTeamMember({
+                    teamId: selectedTeamId,
+                    userId: member.user.id!
+                })
+            }
 
             const targetTeam =
                 selectedTeamId === "no-team"
@@ -124,6 +147,13 @@ export function MemberCellWithTeams({
 
             setMoveTeamDialogOpen(false)
             setSelectedTeamId("")
+            
+            // Update the member team state
+            if (selectedTeamId === "no-team") {
+                setMemberTeam(null)
+            } else {
+                setMemberTeam(teams?.find((t) => t.id === selectedTeamId))
+            }
         } catch (error) {
             toast({
                 variant: "error",

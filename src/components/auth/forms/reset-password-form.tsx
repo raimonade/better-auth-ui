@@ -113,7 +113,7 @@ export function ResetPasswordForm({
             await authClient.resetPassword({
                 newPassword,
                 token,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({

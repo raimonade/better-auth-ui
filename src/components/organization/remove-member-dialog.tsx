@@ -64,7 +64,7 @@ export function RemoveMemberDialog({
                 memberIdOrEmail: member.id,
                 organizationId: member.organizationId,
                 fetchOptions: {
-                    throw: true
+                    
                 }
             })
 

@@ -167,12 +167,12 @@ function OrganizationLogoForm({
 
         try {
             await authClient.organization.update({
-                data: { logo: image },
-                fetchOptions: { throw: true }
+                organizationId: activeOrganization.id,
+                data: { logo: image }
             })
 
-            await refetchActiveOrganization?.()
-            await refetchOrganizations?.()
+            refetchActiveOrganization?.()
+            refetchOrganizations?.()
         } catch (error) {
             toast({
                 variant: "error",
@@ -190,12 +190,12 @@ function OrganizationLogoForm({
 
         try {
             await authClient.organization.update({
-                data: { logo: "" },
-                fetchOptions: { throw: true }
+                organizationId: activeOrganization.id,
+                data: { logo: "" }
             })
 
-            await refetchActiveOrganization?.()
-            await refetchOrganizations?.()
+            refetchActiveOrganization?.()
+            refetchOrganizations?.()
         } catch (error) {
             toast({
                 variant: "error",

@@ -125,14 +125,12 @@ function OrganizationSlugForm({
 
         try {
             await authClient.organization.update({
-                data: { slug },
-                fetchOptions: {
-                    throw: true
-                }
+                organizationId: activeOrganization.id,
+                data: { slug }
             })
 
-            await refetchActiveOrganization?.()
-            await refetchOrganizations?.()
+            refetchActiveOrganization?.()
+            refetchOrganizations?.()
 
             toast({
                 variant: "success",

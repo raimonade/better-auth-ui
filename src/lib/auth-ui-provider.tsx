@@ -692,52 +692,52 @@ export const AuthUIProvider = ({
             deleteApiKey: (params) =>
                 authClient.apiKey.delete({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             deletePasskey: (params) =>
                 authClient.passkey.deletePasskey({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             revokeDeviceSession: (params) =>
                 authClient.multiSession.revoke({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             revokeSession: (params) =>
                 authClient.revokeSession({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             setActiveSession: (params) =>
                 authClient.multiSession.setActive({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             updateUser: (params) =>
                 authClient.updateUser({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             unlinkAccount: (params) =>
                 authClient.unlinkAccount({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             createTeam: (params) =>
                 authClient.organization.createTeam({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             updateTeam: (params) =>
                 authClient.organization.updateTeam({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 }),
             removeTeam: (params) =>
                 authClient.organization.removeTeam({
                     ...params,
-                    fetchOptions: { throw: true }
+                    
                 })
         } as AuthMutators
     }, [authClient])

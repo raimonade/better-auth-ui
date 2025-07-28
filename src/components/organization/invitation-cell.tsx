@@ -60,7 +60,7 @@ export function InvitationCell({
         try {
             await authClient.organization.cancelInvitation({
                 invitationId: invitation.id,
-                fetchOptions: { throw: true }
+                
             })
 
             await refetch?.()

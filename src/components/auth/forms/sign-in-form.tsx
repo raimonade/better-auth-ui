@@ -160,7 +160,7 @@ export function SignInForm({
 
             if (usernameEnabled && !isValidEmail(email)) {
                 const fetchOptions: BetterFetchOption = {
-                    throw: true
+                    
                 }
 
                 response = await authClient.signIn.username({
@@ -171,7 +171,7 @@ export function SignInForm({
                 })
             } else {
                 const fetchOptions: BetterFetchOption = {
-                    throw: true
+                    
                 }
 
                 response = await authClient.signIn.email({

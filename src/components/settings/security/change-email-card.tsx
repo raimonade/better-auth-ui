@@ -70,7 +70,7 @@ export function ChangeEmailCard({
             await authClient.changeEmail({
                 newEmail: email,
                 callbackURL: window.location.pathname,
-                fetchOptions: { throw: true }
+                
             })
 
             if (sessionData?.user.emailVerified) {
@@ -102,7 +102,7 @@ export function ChangeEmailCard({
         try {
             await authClient.sendVerificationEmail({
                 email,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({

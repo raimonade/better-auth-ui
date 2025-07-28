@@ -32,7 +32,6 @@ export function OneTap({ localization, redirectTo }: OneTapProps) {
         try {
             authClient.oneTap({
                 fetchOptions: {
-                    throw: true,
                     onSuccess
                 }
             })

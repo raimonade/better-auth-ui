@@ -47,4 +47,7 @@ export type AuthHooks = {
     useListTeams: (params?: {
         query?: { organizationId?: string }
     }) => AuthHook<Team[]>
+    useListTeamMembers: (params?: {
+        query?: { teamId?: string }
+    }) => AuthHook<any[]>
 }

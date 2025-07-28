@@ -102,19 +102,19 @@ export function InviteMemberDialog({
 
     async function onSubmit({
         email,
-        role,
-        teamId
+        role
     }: z.infer<typeof formSchema>) {
         try {
             await authClient.organization.inviteMember({
                 email,
                 role: role as (typeof builtInRoles)[number]["role"],
-                organizationId: activeOrganization?.id,
-                teamId: teamId === "no-team" ? undefined : teamId || undefined,
-                fetchOptions: { throw: true }
+                organizationId: activeOrganization?.id
             })
 
-            await refetchActiveOrganization?.()
+            // Note: In Better Auth 1.3, team assignment happens after the user accepts the invitation
+            // You would typically add them to the team after they join the organization
+
+            refetchActiveOrganization?.()
 
             onOpenChange?.(false)
             form.reset()

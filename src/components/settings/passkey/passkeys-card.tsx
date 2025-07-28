@@ -53,7 +53,7 @@ export function PasskeysCard({
 
         try {
             await authClient.passkey.addPasskey({
-                fetchOptions: { throw: true }
+                
             })
             await refetch?.()
         } catch (error) {

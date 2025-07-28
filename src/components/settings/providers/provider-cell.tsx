@@ -56,13 +56,13 @@ export function ProviderCell({
                 await authClient.oauth2.link({
                     providerId: provider.provider as SocialProvider,
                     callbackURL,
-                    fetchOptions: { throw: true }
+                    
                 })
             } else {
                 await authClient.linkSocial({
                     provider: provider.provider as SocialProvider,
                     callbackURL,
-                    fetchOptions: { throw: true }
+                    
                 })
             }
         } catch (error) {

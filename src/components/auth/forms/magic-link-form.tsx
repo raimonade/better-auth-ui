@@ -110,7 +110,7 @@ export function MagicLinkForm({
             await authClient.signIn.magicLink({
                 email,
                 callbackURL: getCallbackURL(),
-                fetchOptions: { throw: true }
+                
             })
 
             toast({

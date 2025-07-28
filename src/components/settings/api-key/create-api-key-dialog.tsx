@@ -94,7 +94,7 @@ export function CreateAPIKeyDialog({
                 prefix: typeof apiKey === "object" ? apiKey.prefix : undefined,
                 metadata:
                     typeof apiKey === "object" ? apiKey.metadata : undefined,
-                fetchOptions: { throw: true }
+                
             })
 
             await refetch?.()

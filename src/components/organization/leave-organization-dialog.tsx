@@ -59,7 +59,7 @@ export function LeaveOrganizationDialog({
             await authClient.organization.leave({
                 organizationId: organization.id,
                 fetchOptions: {
-                    throw: true
+                    
                 }
             })
 

@@ -17,4 +17,6 @@ export interface AuthMutators {
         organizationId?: string
     }>
     removeTeam: MutateFn<{ teamId: string; organizationId?: string }>
+    addTeamMember: MutateFn<{ teamId: string; userId: string }>
+    removeTeamMember: MutateFn<{ teamId: string; userId: string }>
 }

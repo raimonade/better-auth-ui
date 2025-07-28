@@ -121,7 +121,7 @@ export function ChangePasswordCard({
             await authClient.requestPasswordReset({
                 email,
                 redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({
@@ -145,7 +145,7 @@ export function ChangePasswordCard({
                 currentPassword,
                 newPassword,
                 revokeOtherSessions: true,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({

@@ -77,7 +77,7 @@ export function ProviderButton({
                 const oauth2Params = {
                     providerId: provider.provider,
                     callbackURL: getCallbackURL(),
-                    fetchOptions: { throw: true }
+                    
                 }
 
                 if (genericOAuth?.signIn) {
@@ -93,7 +93,7 @@ export function ProviderButton({
                 const socialParams = {
                     provider: provider.provider as SocialProvider,
                     callbackURL: getCallbackURL(),
-                    fetchOptions: { throw: true }
+                    
                 }
 
                 if (social?.signIn) {

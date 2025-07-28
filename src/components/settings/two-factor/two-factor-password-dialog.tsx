@@ -70,7 +70,7 @@ export function TwoFactorPasswordDialog({
         try {
             const response = await authClient.twoFactor.enable({
                 password,
-                fetchOptions: { throw: true }
+                
             })
 
             onOpenChange?.(false)
@@ -95,7 +95,7 @@ export function TwoFactorPasswordDialog({
         try {
             await authClient.twoFactor.disable({
                 password,
-                fetchOptions: { throw: true }
+                
             })
 
             toast({

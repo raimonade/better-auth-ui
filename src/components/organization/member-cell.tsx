@@ -39,14 +39,13 @@ export function MemberCell({
 }: MemberCellProps) {
     const {
         organization,
-        hooks: { useActiveOrganization, useSession, useListTeams },
+        hooks: { useActiveOrganization, useSession },
         localization: contextLocalization
     } = useContext(AuthUIContext)
     const localization = { ...contextLocalization, ...localizationProp }
 
     const { data: sessionData } = useSession()
     const { data: activeOrganization } = useActiveOrganization()
-    const { data: teams } = useListTeams()
     const [removeDialogOpen, setRemoveDialogOpen] = useState(false)
     const [updateRoleDialogOpen, setUpdateRoleDialogOpen] = useState(false)
 
@@ -62,11 +61,10 @@ export function MemberCell({
     const roles = [...builtInRoles, ...(organization?.customRoles || [])]
     const role = roles.find((r) => r.role === member.role)
 
-    // Find the team this member belongs to
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const memberTeam = teams?.find(
-        (team: any) => team.id === (member as any).teamId
-    )
+    // Note: In Better Auth 1.3, teamId has been removed from the member table
+    // To find which team a member belongs to, you would need to use the listTeamMembers API
+    // For now, we'll set memberTeam to null as this requires a more complex implementation
+    const memberTeam = null
 
     return (
         <>

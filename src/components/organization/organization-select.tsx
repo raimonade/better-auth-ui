@@ -83,7 +83,7 @@ export function OrganizationSelect({
                 await authClient.organization.setActive({
                     organizationId: organizationId,
                     fetchOptions: {
-                        throw: true
+                        
                     }
                 })
                 await refetchActiveOrganization?.()

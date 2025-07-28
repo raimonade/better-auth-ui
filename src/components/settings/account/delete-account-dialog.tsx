@@ -101,7 +101,7 @@ export function DeleteAccountDialog({
             await authClient.deleteUser({
                 ...params,
                 fetchOptions: {
-                    throw: true
+                    
                 }
             })
 

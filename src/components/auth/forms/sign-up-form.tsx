@@ -533,8 +533,7 @@ export function SignUpForm({
                 ...(username !== undefined && { username }),
                 ...(image !== undefined && { image }),
                 ...additionalFieldValues,
-                callbackURL: getCallbackURL(),
-                fetchOptions
+                callbackURL: getCallbackURL()
             })
 
             if ("token" in data && data.token) {
@@ -544,8 +543,7 @@ export function SignUpForm({
                     try {
                         // Accept the invitation automatically
                         await authClient.organization.acceptInvitation({
-                            invitationId: invitationId,
-                            fetchOptions: { throw: true }
+                            invitationId: invitationId
                         })
 
                         toast({

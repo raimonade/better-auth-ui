@@ -141,16 +141,17 @@ export function CreateOrganizationDialog({
             const organization = await authClient.organization.create({
                 name,
                 slug,
-                logo,
-                fetchOptions: { throw: true }
+                logo
             })
 
-            await authClient.organization.setActive({
-                organizationId: organization.id
-            })
+            if (organization && 'id' in organization) {
+                await authClient.organization.setActive({
+                    organizationId: organization.id as string
+                })
+            }
 
-            await refetchActiveOrganization?.()
-            await refetchOrganizations?.()
+            refetchActiveOrganization?.()
+            refetchOrganizations?.()
             onOpenChange?.(false)
             form.reset()
             setLogo(null)
