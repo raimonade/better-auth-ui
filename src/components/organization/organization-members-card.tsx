@@ -131,8 +131,8 @@ function OrganizationMembersContent({
                         {members
                             .sort(
                                 (a, b) =>
-                                    a.createdAt.getTime() -
-                                    b.createdAt.getTime()
+                                    new Date(a.createdAt).getTime() -
+                                    new Date(b.createdAt).getTime()
                             )
                             .map((member) => (
                                 <MemberCell
