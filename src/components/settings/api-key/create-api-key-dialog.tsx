@@ -137,7 +137,7 @@ export function CreateAPIKeyDialog({
 
             await refetch?.()
             if (result && 'key' in result) {
-                onSuccess(result.key)
+                onSuccess(result.key as string)
             }
             onOpenChange?.(false)
             form.reset()
