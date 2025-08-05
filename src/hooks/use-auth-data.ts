@@ -15,11 +15,17 @@ import type { FetchError } from "../types/fetch-error"
 export function useAuthData<T>({
     queryFn,
     cacheKey,
-    staleTime = 10000 // Default 10 seconds
+    staleTime = 10000, // Default 10 seconds
+    retryOnError = true,
+    maxRetries = 3,
+    retryDelay = 1000
 }: {
     queryFn: () => Promise<{ data: T | null; error?: FetchError | null }>
     cacheKey?: string
     staleTime?: number
+    retryOnError?: boolean
+    maxRetries?: number
+    retryDelay?: number
 }) {
     const { authClient, toast, localization } = useContext(AuthUIContext)
     const { data: sessionData, isPending: sessionPending } =
@@ -50,6 +56,8 @@ export function useAuthData<T>({
     const initialized = useRef(false)
     const previousUserId = useRef<string | undefined>(undefined)
     const [error, setError] = useState<FetchError | null>(null)
+    const retryCount = useRef(0)
+    const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const refetch = useCallback(async () => {
         // Check if there's already an in-flight request for this key
@@ -88,19 +96,49 @@ export function useAuthData<T>({
 
             if (error) {
                 setError(error)
-                toast({
-                    variant: "error",
-                    message: getLocalizedError({ error, localization })
-                })
+                
+                // Check if it's a client error (4xx) that shouldn't be retried
+                const isClientError = error.status && error.status >= 400 && error.status < 500
+                
+                if (isClientError) {
+                    // For client errors, cache null data to prevent retries
+                    authDataCache.set(stableCacheKey, null)
+                    retryCount.current = 0
+                    
+                    // Only show toast for non-404 errors
+                    if (error.status !== 404) {
+                        toast({
+                            variant: "error",
+                            message: getLocalizedError({ error, localization })
+                        })
+                    }
+                } else if (retryOnError && retryCount.current < maxRetries) {
+                    // For server errors, attempt retry
+                    retryCount.current++
+                    retryTimeoutRef.current = setTimeout(() => {
+                        refetch()
+                    }, retryDelay * retryCount.current)
+                } else {
+                    // Max retries reached or retries disabled
+                    authDataCache.set(stableCacheKey, null)
+                    toast({
+                        variant: "error",
+                        message: getLocalizedError({ error, localization })
+                    })
+                }
             } else {
                 setError(null)
+                retryCount.current = 0
+                // Update cache with new data
+                authDataCache.set(stableCacheKey, data)
             }
-
-            // Update cache with new data
-            authDataCache.set(stableCacheKey, data)
         } catch (err) {
             const error = err as FetchError
             setError(error)
+            
+            // For unexpected errors, cache null to prevent infinite loops
+            authDataCache.set(stableCacheKey, null)
+            
             toast({
                 variant: "error",
                 message: getLocalizedError({ error, localization })
@@ -120,6 +158,11 @@ export function useAuthData<T>({
             authDataCache.clear(stableCacheKey)
             initialized.current = false
             previousUserId.current = undefined
+            retryCount.current = 0
+            if (retryTimeoutRef.current) {
+                clearTimeout(retryTimeoutRef.current)
+                retryTimeoutRef.current = null
+            }
             return
         }
 
@@ -163,6 +206,15 @@ export function useAuthData<T>({
         cacheEntry,
         staleTime
     ])
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (retryTimeoutRef.current) {
+                clearTimeout(retryTimeoutRef.current)
+            }
+        }
+    }, [])
 
     // Determine if we're in a pending state
     // We're only pending if:

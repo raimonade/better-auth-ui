@@ -50,4 +50,5 @@ export type AuthHooks = {
     useListTeamMembers: (params?: {
         query?: { teamId?: string }
     }) => AuthHook<any[]>
+    // TODO: Add useListMembers when available in client types
 }

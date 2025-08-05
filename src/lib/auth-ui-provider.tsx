@@ -738,6 +738,14 @@ export const AuthUIProvider = ({
                 authClient.organization.removeTeam({
                     ...params,
                     
+                }),
+            addTeamMember: (params) =>
+                authClient.organization.addTeamMember({
+                    ...params
+                }),
+            removeTeamMember: (params) =>
+                authClient.organization.removeTeamMember({
+                    ...params
                 })
         } as AuthMutators
     }, [authClient])
@@ -789,8 +797,19 @@ export const AuthUIProvider = ({
                 useAuthData({
                     queryFn: () =>
                         authClient.organization.listTeams(params || {}),
-                    cacheKey: `listTeams:${JSON.stringify(params || {})}`
+                    cacheKey: `listTeams:${JSON.stringify(params || {})}`,
+                    retryOnError: false, // Don't retry on client errors
+                    staleTime: 30000 // 30 seconds for team data
+                }),
+            useListTeamMembers: (params) =>
+                useAuthData({
+                    queryFn: () =>
+                        authClient.organization.listTeamMembers(params || {}),
+                    cacheKey: `listTeamMembers:${JSON.stringify(params || {})}`,
+                    retryOnError: false, // Don't retry on 400/404 errors
+                    staleTime: 30000 // 30 seconds for team data
                 })
+            // TODO: Add useListMembers when available in client types
         } as unknown as AuthHooks
     }, [authClient])
 
